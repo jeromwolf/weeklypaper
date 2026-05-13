@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mise en Place for Agentic Coding — 인터랙티브 데모</title>
+  <meta property="og:title" content="Mise en Place for Agentic Coding">
+  <meta property="og:description" content="AI 코딩 에이전트의 효율성은 체계적인 사전 준비(Mise en Place)에서 비롯된다.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Noto+Serif+KR:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Source Serif 4', 'Noto Serif KR', Charter, Georgia, serif; background: #fafaf9; color: #1c1917; }
+    h1,h2,h3,h4,h5,h6,button,label,nav,.sans,.tag { font-family: 'Pretendard', 'Inter', system-ui, -apple-system, sans-serif; }
+    .fade-in { animation: fadeIn 0.5s ease-in; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    .phase-btn.active { background: #7c3aed; color: white; border-color: #7c3aed; }
+    .task-card { transition: border-color 0.2s; }
+    .task-card.done { border-color: #7c3aed; background: #f5f3ff; }
+    input[type=range] { accent-color: #7c3aed; }
+    .bar-fill { transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<!-- Hero -->
+<header class="border-b border-stone-200 bg-white">
+  <div class="max-w-3xl mx-auto px-6 py-12">
+    <div class="flex items-center gap-2 mb-4">
+      <span class="tag text-xs font-medium px-2 py-1 bg-violet-50 text-violet-600 rounded border border-violet-200">arXiv 2605.05400</span>
+      <span class="tag text-xs text-stone-400">2025</span>
+    </div>
+    <h1 class="text-3xl font-bold text-stone-900 leading-tight mb-2">Mise en Place for Agentic Coding</h1>
+    <p class="sans text-stone-500 text-sm mb-4">Andrew Zigler &nbsp;·&nbsp; <a href="https://arxiv.org/abs/2605.05400v1" target="_blank" class="text-violet-600 hover:underline">논문 원문 →</a></p>
+    <p class="text-lg text-stone-700 leading-relaxed max-w-2xl">AI 코딩 에이전트에게 코드를 맡기기 전, 요리사가 <em>mise en place</em>(준비 완료)를 하듯 구조화된 맥락을 먼저 준비하면 디버깅·리팩토링 시간을 획기적으로 줄일 수 있다.</p>
+  </div>
+</header>
+
+<!-- Key Insight -->
+<section class="max-w-3xl mx-auto px-6 py-10">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+    <div class="bg-white border border-stone-200 rounded-lg p-5">
+      <div class="sans text-xs font-semibold text-violet-600 uppercase tracking-wide mb-2">문제</div>
+      <p class="text-sm text-stone-700">"Vibe Coding"은 빠르게 시작하지만, 맥락 부족으로 에이전트가 잘못된 방향의 코드를 생성해 수정 비용이 눈덩이처럼 불어난다.</p>
+    </div>
+    <div class="bg-white border border-stone-200 rounded-lg p-5">
+      <div class="sans text-xs font-semibold text-pink-500 uppercase tracking-wide mb-2">핵심 개념</div>
+      <p class="text-sm text-stone-700"><strong>Mise en Place(MEP)</strong> — 3단계 준비: ① 맥락 기초화 → ② 협력적 명세화 → ③ 작업 분해. 준비 ~2시간으로 병렬 구현 가능.</p>
+    </div>
+    <div class="bg-white border border-stone-200 rounded-lg p-5">
+      <div class="sans text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2">결과</div>
+      <p class="text-sm text-stone-700">해커톤에서 MEP 적용 후 복수의 AI 에이전트가 풀스택 교육 플랫폼을 병렬 구현. <strong>Context Fluency</strong>가 새로운 개발자 역량으로 부상.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Interactive Demo -->
+<section class="max-w-3xl mx-auto px-6 pb-12">
+  <h2 class="text-xl font-bold text-stone-900 mb-1">인터랙티브 데모</h2>
+  <p class="text-sm text-stone-500 sans mb-6">MEP 3단계를 직접 시뮬레이션하며 준비도가 에이전트 효율에 미치는 영향을 확인하세요.</p>
+
+  <!-- Phase Tabs -->
+  <div class="flex gap-2 mb-6 flex-wrap" role="tablist">
+    <button class="phase-btn active sans text-sm font-semibold px-4 py-2 rounded border border-stone-300 transition" onclick="setPhase(0,this)" role="tab">① 맥락 기초화</button>
+    <button class="phase-btn sans text-sm font-semibold px-4 py-2 rounded border border-stone-300 transition" onclick="setPhase(1,this)" role="tab">② 협력적 명세화</button>
+    <button class="phase-btn sans text-sm font-semibold px-4 py-2 rounded border border-stone-300 transition" onclick="setPhase(2,this)" role="tab">③ 작업 분해</button>
+    <button class="phase-btn sans text-sm font-semibold px-4 py-2 rounded border border-stone-300 transition" onclick="setPhase(3,this)" role="tab">📊 효율 시뮬레이터</button>
+  </div>
+
+  <!-- Phase 0: Contextual Grounding -->
+  <div id="phase-0" class="fade-in">
+    <div class="bg-white border border-stone-200 rounded-lg p-6 mb-4">
+      <h3 class="sans font-semibold text-stone-800 mb-1">맥락 기초화 — 도메인 지식 외재화</h3>
+      <p class="text-sm text-stone-600 mb-4">당신이 아는 도메인 지식을 구조화된 문서로 변환합니다. 아래 체크리스트를 완성해보세요.</p>
+      <div class="space-y-3" id="grounding-list">
+        <label class="flex items-start gap-3 cursor-pointer task-card border border-stone-200 rounded p-3" id="g0">
+          <input type="checkbox" class="mt-0.5 accent-violet-600" onchange="checkGrounding()">
+          <span class="text-sm text-stone-700"><strong>기술 스택 문서화</strong> — 사용 언어, 프레임워크, 패키지 버전을 명시한 <code class="sans text-xs bg-stone-100 px-1 rounded">tech-stack.md</code> 작성</span>
+        </label>
+        <label class="flex items-start gap-3 cursor-pointer task-card border border-stone-200 rounded p-3" id="g1">
+          <input type="checkbox" class="mt-0.5 accent-violet-600" onchange="checkGrounding()">
+          <span class="text-sm text-stone-700"><strong>도메인 용어집</strong> — 프로젝트 고유 개념·약어를 에이전트가 오해하지 않도록 정의</span>
+        </label>
+        <label class="flex items-start gap-3 cursor-pointer task-card border border-stone-200 rounded p-3" id="g2">
+          <input type="checkbox" class="mt-0.5 accent-violet-600" onchange="checkGrounding()">
+          <span class="text-sm text-stone-700"><strong>암묵적 제약 명시</strong> — 코드 스타일, 보안 규칙, 성능 기준 등 "당연하다고 여기던" 규칙 문서화</span>
+        </label>
+        <label class="flex items-start gap-3 cursor-pointer task-card border border-stone-200 rounded p-3" id="g3">
+          <input type="checkbox" class="mt-0.5 accent-violet-600" onchange="checkGrounding()">
+          <span class="text-sm text-stone-700"><strong>기존 아키텍처 다이어그램</strong> — 폴더 구조·데이터 흐름·API 경계 시각화</span>
+        </label>
+      </div>
+      <div class="mt-4">
+        <div class="sans text-xs text-stone-500 mb-1">준비도 <span id="grounding-pct" class="text-violet-600 font-semibold">0%</span></div>
+        <div class="h-2 bg-stone-100 rounded-full overflow-hidden">
+          <div id="grounding-bar" class="bar-fill h-2 bg-violet-500 rounded-full" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+    <div id="grounding-tip" class="hidden bg-violet-50 border border-violet-200 rounded p-4 text-sm text-violet-800 fade-in">
+      ✓ 맥락 기초화 완료! 에이전트가 이제 프로젝트의 "언어"를 이해합니다. 다음 단계로 이동하세요.
+    </div>
+  </div>
+
+  <!-- Phase 1: Collaborative Specification -->
+  <div id="phase-1" class="hidden fade-in">
+    <div class="bg-white border border-stone-200 rounded-lg p-6 mb-4">
+      <h3 class="sans font-semibold text-stone-800 mb-1">협력적 명세화 — 인간-에이전트 대화</h3>
+      <p class="text-sm text-stone-600 mb-4">에이전트와의 대화로 설계 아티팩트를 생성합니다. 아래 시나리오를 선택하세요.</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
+        <button onclick="selectSpec(0,this)" class="spec-btn text-left border border-stone-200 rounded p-3 hover:border-violet-400 transition text-sm">
+          <div class="sans font-semibold text-stone-700 mb-1">🏗️ API 설계 명세</div>
+          <div class="text-stone-500 text-xs">엔드포인트·요청·응답 스키마 협의</div>
+        </button>
+        <button onclick="selectSpec(1,this)" class="spec-btn text-left border border-stone-200 rounded p-3 hover:border-violet-400 transition text-sm">
+          <div class="sans font-semibold text-stone-700 mb-1">🗄️ 데이터 모델 설계</div>
+          <div class="text-stone-500 text-xs">Entity 관계·필드·제약 조건 정의</div>
+        </button>
+        <button onclick="selectSpec(2,this)" class="spec-btn text-left border border-stone-200 rounded p-3 hover:border-violet-400 transition text-sm">
+          <div class="sans font-semibold text-stone-700 mb-1">🧩 컴포넌트 경계</div>
+          <div class="text-stone-500 text-xs">모듈 책임·인터페이스·의존 관계 협의</div>
+        </button>
+        <button onclick="selectSpec(3,this)" class="spec-btn text-left border border-stone-200 rounded p-3 hover:border-violet-400 transition text-sm">
+          <div class="sans font-semibold text-stone-700 mb-1">🔐 인증 플로우</div>
+          <div class="text-stone-500 text-xs">세션·토큰·권한 처리 방식 확정</div>
+        </button>
+      </div>
+      <div id="spec-output" class="hidden bg-stone-50 border border-stone-200 rounded p-4 text-sm text-stone-700 font-mono leading-relaxed fade-in"></div>
+    </div>
+  </div>
+
+  <!-- Phase 2: Task Decomposition -->
+  <div id="phase-2" class="hidden fade-in">
+    <div class="bg-white border border-stone-200 rounded-lg p-6">
+      <h3 class="sans font-semibold text-stone-800 mb-1">작업 분해 — 의존성 인식 태스크 레코드</h3>
+      <p class="text-sm text-stone-600 mb-4">명세를 병렬 실행 가능한 구조화 태스크로 분해합니다. 각 태스크를 완료 처리해보세요.</p>
+      <div class="space-y-2" id="task-board">
+        <!-- tasks rendered by JS -->
+      </div>
+      <div class="mt-4 pt-4 border-t border-stone-100">
+        <div class="sans text-xs text-stone-500 mb-1">태스크 완료율 <span id="task-pct" class="text-violet-600 font-semibold">0%</span></div>
+        <div class="h-2 bg-stone-100 rounded-full overflow-hidden">
+          <div id="task-bar" class="bar-fill h-2 bg-pink-500 rounded-full" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 3: Efficiency Simulator -->
+  <div id="phase-3" class="hidden fade-in">
+    <div class="bg-white border border-stone-200 rounded-lg p-6">
+      <h3 class="sans font-semibold text-stone-800 mb-1">효율 시뮬레이터</h3>
+      <p class="text-sm text-stone-600 mb-5">MEP 준비 시간에 따른 전체 개발 비용(준비 + 디버깅)을 비교합니다.</p>
+      <div class="mb-5">
+        <label class="sans text-xs font-semibold text-stone-600 block mb-2">MEP 준비 시간: <span id="prep-val" class="text-violet-600">2</span>시간</label>
+        <input type="range" min="0" max="8" step="0.5" value="2" id="prep-slider" class="w-full" oninput="updateSim()">
+        <div class="sans flex justify-between text-xs text-stone-400 mt-1"><span>0h (Vibe)</span><span>8h (완전 준비)</span></div>
+      </div>
+      <div class="grid grid-cols-3 gap-3 mb-5 text-center">
+        <div class="bg-stone-50 border border-stone-200 rounded p-3">
+          <div class="sans text-xs text-stone-500 mb-1">준비 비용</div>
+          <div id="sim-prep" class="sans text-xl font-bold text-violet-600">2h</div>
+        </div>
+        <div class="bg-stone-50 border border-stone-200 rounded p-3">
+          <div class="sans text-xs text-stone-500 mb-1">예상 디버깅</div>
+          <div id="sim-debug" class="sans text-xl font-bold text-pink-500">18h</div>
+        </div>
+        <div class="bg-stone-50 border border-stone-200 rounded p-3">
+          <div class="sans text-xs text-stone-500 mb-1">총 비용</div>
+          <div id="sim-total" class="sans text-xl font-bold text-stone-800">20h</div>
+        </div>
+      </div>
+      <!-- SVG Bar Chart -->
+      <svg id="sim-svg" viewBox="0 0 400 120" class="w-full" aria-label="MEP 효율 시뮬레이션 차트">
+        <rect x="30" y="10" width="140" height="100" rx="2" fill="#f5f3ff" stroke="#e9d5ff" stroke-width="1"/>
+        <rect x="230" y="10" width="140" height="100" rx="2" fill="#fdf2f8" stroke="#fbcfe8" stroke-width="1"/>
+        <text x="100" y="7" text-anchor="middle" font-family="Pretendard,Inter,sans-serif" font-size="9" fill="#78716c">Vibe Coding</text>
+        <text x="300" y="7" text-anchor="middle" font-family="Pretendard,Inter,sans-serif" font-size="9" fill="#78716c">MEP 방식</text>
+        <!-- Vibe: fixed debug 28h, prep 0 -->
+        <rect x="50" y="25" width="40" height="80" rx="2" fill="#e7e5e4"/>
+        <text x="70" y="22" text-anchor="middle" font-family="Pretendard,Inter,sans-serif" font-size="8" fill="#a8a29e">준비 0h</text>
+        <rect x="110" y="25" width="40" height="80" rx="2" fill="#fda4af"/>
+        <text x="130" y="22" text-anchor="middle" font-family="Pretendard,Inter,sans-serif" font-size="8" fill="#f43f5e">디버깅 28h</text>
+        <!-- MEP: dynamic -->
+        <rect id="mep-prep-bar" x="250" y="25" width="40" rx="2" fill="#c4b5fd"/>
+        <text id="mep-prep-txt" x="270" y="22" text-anchor="middle" font-family="Pretendard,Inter,sans-serif" font-size="8" fill="#7c3aed"></text>
+        <rect id="mep-debug-bar" x="310" y="25" width="40" rx="2" fill="#fda4af"/>
+        <text id="mep-debug-txt" x="330" y="22" text-anchor="middle" font-family="Pretendard,Inter,sans-serif" font-size="8" fill="#f43f5e"></text>
+        <text x="50" y="118" font-family="Pretendard,Inter,sans-serif" font-size="8" fill="#a8a29e">준비</text>
+        <text x="110" y="118" font-family="Pretendard,Inter,sans-serif" font-size="8" fill="#a8a29e">디버깅</text>
+        <text x="250" y="118" font-family="Pretendard,Inter,sans-serif" font-size="8" fill="#a8a29e">준비</text>
+        <text x="310" y="118" font-family="Pretendard,Inter,sans-serif" font-size="8" fill="#a8a29e">디버깅</text>
+      </svg>
+      <p id="sim-insight" class="text-sm text-stone-600 mt-4 text-center"></p>
+    </div>
+  </div>
+</section>
+
+<!-- Business Analysis -->
+<section class="border-t border-stone-200 bg-white">
+  <div class="max-w-3xl mx-auto px-6 py-12">
+    <h2 class="text-xl font-bold text-stone-900 mb-6">비즈니스 분석</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="border border-stone-200 rounded-lg p-5">
+        <div class="sans text-xs font-semibold text-violet-600 uppercase tracking-wide mb-2">Wedge Pitch</div>
+        <p class="text-sm text-stone-700">AI 코딩 에이전트를 사용하는 개발팀의 반복 디버깅·리팩토링 비용을 구조화된 사전 준비(MEP) 워크플로우 플랫폼으로 줄인다. TAM <strong>$12B</strong>.</p>
+      </div>
+      <div class="border border-stone-200 rounded-lg p-5">
+        <div class="sans text-xs font-semibold text-pink-500 uppercase tracking-wide mb-2">타겟 고객</div>
+        <p class="text-sm text-stone-700">Cursor·GitHub Copilot 등 AI 코딩 도구를 이미 사용 중이나 품질·일관성 문제를 겪는 <strong>5~50인 SaaS 스타트업</strong> 시니어 엔지니어 리드.</p>
+      </div>
+      <div class="border border-stone-200 rounded-lg p-5">
+        <div class="sans text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2">경쟁사</div>
+        <ul class="text-sm text-stone-700 space-y-1">
+          <li>· <strong>Linear</strong> — 이슈 트래킹 (맥락 준비 없음)</li>
+          <li>· <strong>Swimm</strong> — 코드 문서화 (에이전트 연동 미흡)</li>
+          <li>· <strong>Confluence+Jira</strong> — 무겁고 AI 최적화 안 됨</li>
+        </ul>
+      </div>
+      <div class="border border-stone-200 rounded-lg p-5">
+        <div class="sans text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2">유니콘 시나리오</div>
+        <p class="text-sm text-stone-700">'에이전트 오케스트레이션 레이어'로 포지셔닝. 팀당 <strong>$500–2,000/월</strong> 청구, 글로벌 10만 팀 확보 시 <strong>$1B ARR</strong> 도달.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="border-t border-stone-200">
+  <div class="max-w-3xl mx-auto px-6 py-6 flex flex-col sm:flex-row justify-between items-center gap-2">
+    <p class="sans text-xs text-stone-400">Built with <a href="https://flux.ai.kr" target="_blank" class="text-violet-600 hover:underline font-medium">Flux Agent</a> — flux.ai.kr</p>
+    <a href="https://arxiv.org/abs/2605.05400v1" target="_blank" class="sans text-xs text-stone-400 hover:text-violet-600 transition">논문 원문: arXiv 2605.05400 →</a>
+  </div>
+</footer>
+
+<script defer>
+  const phases = [0,1,2,3];
+  function setPhase(idx, btn) {
+    phases.forEach(i => {
+      document.getElementById('phase-'+i).classList.add('hidden');
+    });
+    document.querySelectorAll('.phase-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('phase-'+idx).classList.remove('hidden');
+    btn.classList.add('active');
+    if(idx===2) renderTasks();
+  }
+
+  // Phase 0
+  function checkGrounding() {
+    const boxes = document.querySelectorAll('#grounding-list input[type=checkbox]');
+    const checked = [...boxes].filter(b=>b.checked).length;
+    const pct = Math.round(checked/boxes.length*100);
+    document.getElementById('grounding-pct').textContent = pct+'%';
+    document.getElementById('grounding-bar').style.width = pct+'%';
+    boxes.forEach((b,i)=>{
+      const card = b.closest('label');
+      if(b.checked) card.classList.add('done');
+      else card.classList.remove('done');
+    });
+    if(pct===100) document.getElementById('grounding-tip').classList.remove('hidden');
+    else document.getElementById('grounding-tip').classList.add('hidden');
+  }
+
+  // Phase 1
+  const specTemplates = [
+    `# API 설계 명세\n\nPOST /api/courses\n  Body: { title: string, description: string, instructor_id: uuid }\n  Response: { id: uuid, created_at: timestamp }\n  Auth: Bearer JWT (role: instructor)\n\nGET /api/courses/:id/lessons\n  Response: Lesson[]\n  Cache: 60s CDN`,
+    `# 데이터 모델\n\nUser { id, email, role: enum(student|instructor), created_at }\nCourse { id, title, instructor_id→User, published: bool }\nLesson { id, course_id→Course, order: int, content_md }\nEnrollment { user_id→User, course_id→Course, enrolled_at }`,
+    `# 컴포넌트 경계\n\n[AuthModule]  ← JWT 발급·검증 전담\n[CourseService] ← CRUD + 권한 체크, DB 직접 접근\n[LessonRenderer] ← Markdown→HTML 변환, 캐시\n[EnrollmentService] ← 수강 신청·결제 이벤트 발행`,
+    `# 인증 플로우\n\n1. POST /auth/login → { access_token(15m), refresh_token(7d) }\n2. 모든 API: Authorization: Bearer <access_token>\n3. 만료 시: POST /auth/refresh → 새 access_token\n4. refresh_token은 HttpOnly Cookie에만 저장\n5. 로그아웃: refresh_token DB 무효화`
+  ];
+  function selectSpec(idx, btn) {
+    document.querySelectorAll('.spec-btn').forEach(b=>b.classList.remove('border-violet-400','bg-violet-50'));
+    btn.classList.add('border-violet-400','bg-violet-50');
+    const out = document.getElementById('spec-output');
+    out.classList.remove('hidden');
+    out.textContent = specTemplates[idx];
+  }
+
+  // Phase 2
+  const tasks = [
+    { id:'T1', label:'DB 스키마 마이그레이션 작성', dep:null, agent:'Agent A' },
+    { id:'T2', label:'User/Course 모델 구현', dep:'T1', agent:'Agent A' },
+    { id:'T3', label:'JWT 인증 미들웨어', dep:null, agent:'Agent B' },
+    { id:'T4', label:'Course CRUD API 엔드포인트', dep:'T2,T3', agent:'Agent B' },
+    { id:'T5', label:'Lesson Renderer 컴포넌트', dep:null, agent:'Agent C' },
+    { id:'T6', label:'프론트엔드 수강 신청 UI', dep:'T4', agent:'Agent C' },
+  ];
+  let doneSet = new Set();
+  function renderTasks() {
+    const board = document.getElementById('task-board');
+    board.innerHTML = '';
+    tasks.forEach(t => {
+      const done = doneSet.has(t.id);
+      const depBlocked = t.dep && !t.dep.split(',').every(d=>doneSet.has(d.trim()));
+      const div = document.createElement('div');
+      div.className = `task-card flex items-center gap-3 border rounded p-3 text-sm ${done?'done':'border-stone-200'} ${depBlocked&&!done?'opacity-50':''}`;
+      div.innerHTML = `
+        <input type="checkbox" class="accent-violet-600 flex-shrink-0" ${done?'checked':''} ${depBlocked&&!done?'disabled':''} onchange="toggleTask('${t.id}')">
+        <div class="flex-1">
+          <span class="font-medium text-stone-800">${t.id}</span>
+          <span class="text-stone-600 ml-2">${t.label}</span>
+          ${t.dep?`<span class="sans text-xs text-stone-400 ml-2">의존: ${t.dep}</span>`:''}
+        </div>
+        <span class="sans text-xs px-2 py-0.5 bg-stone-100 text-stone-500 rounded">${t.agent}</span>
+      `;
+      board.appendChild(div);
+    });
+    const pct = Math.round(doneSet.size/tasks.length*100);
+    document.getElementById('task-pct').textContent = pct+'%';
+    document.getElementById('task-bar').style.width = pct+'%';
+  }
+  function toggleTask(id) {
+    if(doneSet.has(id)) doneSet.delete(id);
+    else doneSet.add(id);
+    renderTasks();
+  }
+
+  // Phase 3: Simulator
+  function updateSim() {
+    const prep = parseFloat(document.getElementById('prep-slider').value);
+    document.getElementById('prep-val').textContent = prep;
+    // debug decreases with prep: max 28h at 0, min 3h at 8h prep
+    const debug = Math.max(3, Math.round(28 * Math.pow(0.62, prep)));
+    const total = prep + debug;
+    document.getElementById('sim-prep').textContent = prep+'h';
+    document.getElementById('sim-debug').textContent = debug+'h';
+    document.getElementById('sim-total').textContent = total+'h';
+    // SVG bars: max height 80px = 28h
+    const scale = 80/28;
+    const prepH = Math.min(80, prep*scale);
+    const debugH = Math.min(80, debug*scale);
+    const prepBar = document.getElementById('mep-prep-bar');
+    const debugBar = document.getElementById('mep-debug-bar');
+    prepBar.setAttribute('y', 105-prepH);
+    prepBar.setAttribute('height', prepH||2);
+    debugBar.setAttribute('y', 105-debugH);
+    debugBar.setAttribute('height', debugH);
+    document.getElementById('mep-prep-txt').textContent = prep+'h';
+    document.getElementById('mep-prep-txt').setAttribute('y', 102-prepH);
+    document.getElementById('mep-debug-txt').textContent = debug+'h';
+    document.getElementById('mep-debug-txt').setAttribute('y', 102-debugH);
+    const saved = 28-debug;
+    const pct = Math.round(saved/28*100);
+    document.getElementById('sim-insight').textContent = prep>0
+      ? `MEP ${prep}h 투자 → 디버깅 ${saved}h 절감 (${pct}% 감소). 총 비용 ${total}h vs Vibe Coding 28h.`
+      : 'MEP 준비 없이 시작하면 디버깅에만 28시간 이상 소모됩니다.';
+  }
+  updateSim();
+</script>
+</body>
+</html>
