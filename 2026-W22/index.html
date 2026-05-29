@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 가시성 진단기 — B2B SaaS AI Visibility Study</title>
+  <meta property="og:title" content="AI 가시성 진단기 — B2B SaaS AI Visibility Study">
+  <meta property="og:description" content="B2B SaaS 기업의 44%가 AI 어시스턴트 기반 구매자에게 보이지 않는다. 내 회사는?">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Noto+Serif+KR:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    body { font-family: 'Source Serif 4', 'Noto Serif KR', Charter, Georgia, serif; background: #fafaf9; color: #1c1917; }
+    h1,h2,h3,h4,h5,h6,button,label,nav,.sans,.tag { font-family: 'Pretendard', 'Inter', system-ui, -apple-system, sans-serif; }
+    .fade-in { animation: fadeIn 0.6s ease both; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    input[type=range] { accent-color: #7c3aed; }
+    .score-ring { transition: stroke-dashoffset 0.8s cubic-bezier(0.4,0,0.2,1); }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<!-- Hero -->
+<section class="max-w-2xl mx-auto px-6 pt-16 pb-10">
+  <div class="flex flex-wrap gap-2 mb-6">
+    <span class="tag text-xs font-medium px-2.5 py-1 rounded-full border border-violet-200 text-violet-600 bg-violet-50">GEO Research</span>
+    <span class="tag text-xs font-medium px-2.5 py-1 rounded-full border border-stone-200 text-stone-500 bg-white">DerivateX Study 2024</span>
+    <span class="tag text-xs font-medium px-2.5 py-1 rounded-full border border-pink-200 text-pink-600 bg-pink-50">주간 최고점 21/30</span>
+  </div>
+  <h1 class="text-3xl sm:text-4xl font-bold leading-tight text-stone-900 mb-4">B2B SaaS 기업의 44%는<br>AI 구매자에게 <span style="background:linear-gradient(135deg,#7c3aed,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent">보이지 않는다</span></h1>
+  <p class="text-lg text-stone-600 leading-relaxed mb-6">DerivateX 연구팀이 측정한 AI 가시성 점수 — ChatGPT·Perplexity 등 AI 어시스턴트로 구매를 결정하는 바이어에게 당신의 회사가 얼마나 노출되는지, 지금 바로 진단하세요.</p>
+  <a href="https://www.demandgenreport.com/industry-news/news-brief/derivatex-study-finds-b2b-saas-companies-are-invisible-to-ai-assisted-buyers/52463/" target="_blank" rel="noopener" class="sans inline-flex items-center gap-1.5 text-sm text-violet-600 hover:text-violet-800 border-b border-violet-300 hover:border-violet-600 transition-colors">원문 보기 →</a>
+</section>
+
+<!-- Key Insights -->
+<section class="max-w-2xl mx-auto px-6 pb-10">
+  <h2 class="text-xl font-semibold text-stone-900 mb-4">핵심 발견</h2>
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="bg-white border border-stone-200 rounded-xl p-5 shadow-sm">
+      <div class="sans text-3xl font-bold text-violet-600 mb-1">44%</div>
+      <p class="text-sm text-stone-600">AI 가시성 점수 50점 미만 — 사실상 AI 어시스턴트에게 투명인간</p>
+    </div>
+    <div class="bg-white border border-stone-200 rounded-xl p-5 shadow-sm">
+      <div class="sans text-3xl font-bold text-pink-500 mb-1">언급↓</div>
+      <p class="text-sm text-stone-600">감정 점수가 완벽해도 배포·분산 전략 없으면 AI 언급 빈도 급감</p>
+    </div>
+    <div class="bg-white border border-stone-200 rounded-xl p-5 shadow-sm">
+      <div class="sans text-3xl font-bold text-emerald-600 mb-1">GEO</div>
+      <p class="text-sm text-stone-600">Generative Engine Optimization — SEO 다음 시대의 필수 전략</p>
+    </div>
+  </div>
+</section>
+
+<!-- Interactive Demo -->
+<section class="max-w-2xl mx-auto px-6 pb-14">
+  <h2 class="text-xl font-semibold text-stone-900 mb-2">AI 가시성 진단기</h2>
+  <p class="text-sm text-stone-500 mb-6 sans">아래 슬라이더로 귀사의 현재 상태를 입력하면 추정 AI 가시성 점수와 개선 방향을 확인할 수 있습니다.</p>
+
+  <div class="bg-white border border-stone-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+      <!-- Inputs -->
+      <div class="space-y-6">
+        <div>
+          <label class="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2 block">콘텐츠 배포 채널 수 <span id="v1" class="text-violet-600">3</span></label>
+          <input type="range" min="1" max="10" value="3" id="s1" class="w-full" oninput="update()">
+          <div class="flex justify-between text-xs text-stone-400 mt-1 sans"><span>1채널</span><span>10채널</span></div>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2 block">월 콘텐츠 발행량 <span id="v2" class="text-violet-600">4</span>편</label>
+          <input type="range" min="1" max="30" value="4" id="s2" class="w-full" oninput="update()">
+          <div class="flex justify-between text-xs text-stone-400 mt-1 sans"><span>1편</span><span>30편</span></div>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2 block">외부 링크·인용 지수 <span id="v3" class="text-violet-600">30</span></label>
+          <input type="range" min="0" max="100" value="30" id="s3" class="w-full" oninput="update()">
+          <div class="flex justify-between text-xs text-stone-400 mt-1 sans"><span>낮음</span><span>높음</span></div>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2 block">감정·리뷰 점수 <span id="v4" class="text-violet-600">65</span></label>
+          <input type="range" min="0" max="100" value="65" id="s4" class="w-full" oninput="update()">
+          <div class="flex justify-between text-xs text-stone-400 mt-1 sans"><span>부정적</span><span>긍정적</span></div>
+        </div>
+      </div>
+
+      <!-- Score Display -->
+      <div class="flex flex-col items-center justify-center">
+        <div class="relative w-40 h-40 mb-4">
+          <svg viewBox="0 0 120 120" class="w-full h-full -rotate-90">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="#e7e5e4" stroke-width="10"/>
+            <circle id="scoreArc" cx="60" cy="60" r="50" fill="none" stroke="#7c3aed" stroke-width="10"
+              stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="220" class="score-ring"/>
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <span id="scoreNum" class="sans text-4xl font-bold text-stone-900">31</span>
+            <span class="sans text-xs text-stone-400">/ 100</span>
+          </div>
+        </div>
+        <div id="scoreLabel" class="sans text-sm font-semibold px-3 py-1 rounded-full bg-red-50 text-red-600 border border-red-200 mb-3">AI 비가시 구간</div>
+        <p id="scoreDesc" class="text-sm text-stone-500 text-center leading-relaxed">현재 상태로는 AI 어시스턴트가 귀사를 추천할 가능성이 매우 낮습니다. 배포 채널과 콘텐츠 발행량을 우선 늘리세요.</p>
+      </div>
+    </div>
+
+    <!-- Radar Chart -->
+    <div class="mt-8 pt-6 border-t border-stone-100">
+      <h3 class="sans text-sm font-semibold text-stone-700 mb-4">4대 AI 가시성 지표 분포</h3>
+      <div class="max-w-xs mx-auto" style="height:220px">
+        <canvas id="radarChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="mt-6 pt-6 border-t border-stone-100">
+      <h3 class="sans text-sm font-semibold text-stone-700 mb-3">우선 개선 권고</h3>
+      <ul id="recs" class="space-y-2 text-sm text-stone-600"></ul>
+    </div>
+  </div>
+
+  <!-- Industry Benchmark Chart -->
+  <div class="mt-8 bg-white border border-stone-200 rounded-2xl p-6 shadow-sm">
+    <h3 class="sans text-sm font-semibold text-stone-700 mb-1">업계 AI 가시성 점수 분포 (DerivateX 연구 기반)</h3>
+    <p class="sans text-xs text-stone-400 mb-5">모의 데이터 — 실제 연구 결과 근거 재구성</p>
+    <div style="height:180px"><canvas id="barChart"></canvas></div>
+  </div>
+</section>
+
+<!-- Business Analysis -->
+<section class="max-w-2xl mx-auto px-6 pb-16">
+  <h2 class="text-xl font-semibold text-stone-900 mb-6">비즈니스 분석</h2>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div class="bg-white border border-stone-200 rounded-xl p-5 shadow-sm">
+      <div class="sans text-xs font-semibold text-violet-600 uppercase tracking-wide mb-2">Wedge Pitch</div>
+      <p class="text-sm text-stone-700 leading-relaxed">AI 구매 여정에서 보이지 않는 B2B SaaS 기업에게 GEO(Generative Engine Optimization) 진단·개선 플랫폼을 제공해 파이프라인 손실을 막는다.</p>
+    </div>
+    <div class="bg-white border border-stone-200 rounded-xl p-5 shadow-sm">
+      <div class="sans text-xs font-semibold text-pink-500 uppercase tracking-wide mb-2">Target Customer</div>
+      <p class="text-sm text-stone-700 leading-relaxed">ARR $1M~$50M B2B SaaS 마케팅 VP. ChatGPT·Perplexity 통한 인바운드가 줄고 있지만 원인 파악 도구가 없는 실무자.</p>
+    </div>
+    <div class="bg-white border border-stone-200 rounded-xl p-5 shadow-sm">
+      <div class="sans text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2">경쟁 환경</div>
+      <ul class="text-sm text-stone-700 space-y-1">
+        <li>• <strong>Semrush / Ahrefs</strong> — 전통 SEO, AI 가시성 미측정</li>
+        <li>• <strong>Goodie AI</strong> — 초기 단계, 카테고리 미정의</li>
+        <li>• <strong>기회</strong>: GEO 카테고리 선점 공백 존재</li>
+      </ul>
+    </div>
+    <div class="bg-white border border-stone-200 rounded-xl p-5 shadow-sm">
+      <div class="sans text-xs font-semibold text-emerald-600 uppercase tracking-wide mb-2">Unicorn Scenario</div>
+      <p class="text-sm text-stone-700 leading-relaxed">글로벌 2만 개 B2B SaaS × 월 $2K = $480M ARR 잠재. TAM <strong>$12B</strong>. SEMrush급 IPO 또는 전략적 M&A로 5년 내 $1B+ 목표.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="border-t border-stone-200 bg-white">
+  <div class="max-w-2xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <p class="sans text-sm text-stone-400">Built with <a href="https://flux.ai.kr" target="_blank" class="text-violet-600 hover:underline font-medium">Flux Agent</a></p>
+    <a href="https://www.demandgenreport.com/industry-news/news-brief/derivatex-study-finds-b2b-saas-companies-are-invisible-to-ai-assisted-buyers/52463/" target="_blank" rel="noopener" class="sans text-sm text-stone-400 hover:text-stone-700 transition-colors">원문 논문 보기 →</a>
+  </div>
+</footer>
+
+<script defer>
+let radarChart, barChart;
+
+function calcScore(ch, pub, link, sent) {
+  return Math.round(ch * 4 + pub * 1.2 + link * 0.3 + sent * 0.1);
+}
+
+function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
+
+function update() {
+  const ch   = parseInt(document.getElementById('s1').value);
+  const pub  = parseInt(document.getElementById('s2').value);
+  const link = parseInt(document.getElementById('s3').value);
+  const sent = parseInt(document.getElementById('s4').value);
+
+  document.getElementById('v1').textContent = ch;
+  document.getElementById('v2').textContent = pub;
+  document.getElementById('v3').textContent = link;
+  document.getElementById('v4').textContent = sent;
+
+  const raw = calcScore(ch, pub, link, sent);
+  const score = clamp(raw, 0, 100);
+
+  document.getElementById('scoreNum').textContent = score;
+  const arc = document.getElementById('scoreArc');
+  arc.setAttribute('stroke-dashoffset', Math.round(314 * (1 - score/100)));
+
+  const lbl = document.getElementById('scoreLabel');
+  const desc = document.getElementById('scoreDesc');
+  if (score < 35) {
+    lbl.className = 'sans text-sm font-semibold px-3 py-1 rounded-full bg-red-50 text-red-600 border border-red-200 mb-3';
+    lbl.textContent = 'AI 비가시 구간';
+    desc.textContent = '현재 AI 어시스턴트가 귀사를 추천할 가능성이 매우 낮습니다. 배포 채널과 발행량을 즉시 확대하세요.';
+    arc.setAttribute('stroke','#ef4444');
+  } else if (score < 60) {
+    lbl.className = 'sans text-sm font-semibold px-3 py-1 rounded-full bg-yellow-50 text-yellow-700 border border-yellow-200 mb-3';
+    lbl.textContent = '부분 가시 구간';
+    desc.textContent = '일부 AI 쿼리에서 언급되지만 일관성이 부족합니다. 외부 인용 강화와 콘텐츠 다각화가 필요합니다.';
+    arc.setAttribute('stroke','#f59e0b');
+  } else if (score < 80) {
+    lbl.className = 'sans text-sm font-semibold px-3 py-1 rounded-full bg-blue-50 text-blue-600 border border-blue-200 mb-3';
+    lbl.textContent = 'AI 가시 구간';
+    desc.textContent = '주요 AI 어시스턴트에서 경쟁사 대비 양호한 노출을 보입니다. 감정 품질과 전문성 심화로 우위를 굳히세요.';
+    arc.setAttribute('stroke','#3b82f6');
+  } else {
+    lbl.className = 'sans text-sm font-semibold px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 mb-3';
+    lbl.textContent = 'AI 리더 구간';
+    desc.textContent = '탁월한 AI 가시성을 보유하고 있습니다. GEO 우위를 브랜드 자산으로 전환하고 카테고리 리더십을 강화하세요.';
+    arc.setAttribute('stroke','#10b981');
+  }
+
+  // Recommendations
+  const recs = [];
+  if (ch < 5)   recs.push({ icon:'📡', text:'배포 채널을 최소 5개 이상으로 확대하세요 (LinkedIn, Reddit, G2, TrustRadius 등)' });
+  if (pub < 10) recs.push({ icon:'✍️', text:'월 콘텐츠 발행을 10편 이상으로 늘려 AI 학습 데이터 노출 빈도를 높이세요' });
+  if (link < 50) recs.push({ icon:'🔗', text:'외부 인용·백링크를 강화해 AI가 신뢰 소스로 인식하게 만드세요' });
+  if (sent < 70) recs.push({ icon:'⭐', text:'G2·Capterra 리뷰를 적극 유도해 긍정 감정 점수를 70+ 이상으로 끌어올리세요' });
+  if (recs.length === 0) recs.push({ icon:'🏆', text:'현재 GEO 지표가 우수합니다. 경쟁사 모니터링과 지속적 콘텐츠 갱신으로 유지하세요' });
+
+  document.getElementById('recs').innerHTML = recs.map(r =>
+    `<li class="flex items-start gap-2"><span>${r.icon}</span><span>${r.text}</span></li>`
+  ).join('');
+
+  // Radar update
+  const norm = [
+    Math.round(ch/10*100),
+    Math.round(pub/30*100),
+    link,
+    sent
+  ];
+  if (radarChart) {
+    radarChart.data.datasets[0].data = norm;
+    radarChart.update('none');
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  // Radar Chart
+  const rCtx = document.getElementById('radarChart').getContext('2d');
+  radarChart = new Chart(rCtx, {
+    type: 'radar',
+    data: {
+      labels: ['배포 채널', '발행량', '외부 인용', '감정 점수'],
+      datasets: [{
+        label: '내 회사',
+        data: [30, 13, 30, 65],
+        backgroundColor: 'rgba(124,58,237,0.1)',
+        borderColor: '#7c3aed',
+        borderWidth: 2,
+        pointBackgroundColor: '#7c3aed',
+        pointRadius: 4
+      }, {
+        label: '상위 25%',
+        data: [80, 70, 75, 85],
+        backgroundColor: 'rgba(16,185,129,0.05)',
+        borderColor: '#10b981',
+        borderWidth: 1.5,
+        borderDash: [4,3],
+        pointBackgroundColor: '#10b981',
+        pointRadius: 3
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: { r: { min:0, max:100, ticks: { display:false, stepSize:25 }, grid: { color:'#e7e5e4' }, pointLabels: { font: { family:'Pretendard,Inter,sans-serif', size:11 }, color:'#78716c' } } },
+      plugins: { legend: { position:'bottom', labels: { font:{family:'Pretendard,Inter,sans-serif',size:11}, boxWidth:12, color:'#78716c' } } }
+    }
+  });
+
+  // Bar Chart
+  const bCtx = document.getElementById('barChart').getContext('2d');
+  barChart = new Chart(bCtx, {
+    type: 'bar',
+    data: {
+      labels: ['0–20','21–35','36–50','51–65','66–80','81–100'],
+      datasets: [{
+        label: '기업 비율 (%)',
+        data: [12, 18, 14, 22, 20, 14],
+        backgroundColor: ['#fca5a5','#fca5a5','#fca5a5','#fde68a','#a7f3d0','#6ee7b7'],
+        borderRadius: 6,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display:false },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.raw}%의 기업` } },
+        annotation: {}
+      },
+      scales: {
+        x: { grid:{display:false}, ticks:{font:{family:'Pretendard,Inter,sans-serif',size:11},color:'#78716c'} },
+        y: { grid:{color:'#f5f5f4'}, ticks:{font:{family:'Pretendard,Inter,sans-serif',size:11},color:'#78716c'}, max:30 }
+      }
+    }
+  });
+
+  update();
+});
+</script>
+</body>
+</html>
