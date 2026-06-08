@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DMF: Deterministic Memory Framework — Interactive Demo</title>
+  <meta property="og:title" content="DMF: Deterministic Memory Framework">
+  <meta property="og:description" content="LLM 없이 결정론적 수학 스코링으로 대화 메모리를 관리하는 새로운 패러다임">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Noto+Serif+KR:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    body { font-family: 'Source Serif 4', 'Noto Serif KR', Charter, Georgia, serif; background: #fafaf9; color: #292524; }
+    h1,h2,h3,h4,h5,h6,button,label,nav,.sans,.tag { font-family: 'Pretendard', 'Inter', system-ui, -apple-system, sans-serif; }
+    .accent { color: #7c3aed; }
+    .tag { display: inline-block; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; }
+    .fade-in { animation: fadeIn 0.5s ease both; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .score-bar { transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
+    .mem-row { transition: all 0.4s ease; }
+    .pruned { opacity: 0.3; text-decoration: line-through; }
+    input[type=range] { accent-color: #7c3aed; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<!-- Hero -->
+<section class="max-w-3xl mx-auto px-6 pt-16 pb-10">
+  <div class="mb-4 flex flex-wrap gap-2 items-center">
+    <span class="tag bg-violet-100 text-violet-700">arXiv 2606.03463</span>
+    <span class="tag bg-stone-100 text-stone-600">NLP · Memory · AI Agents</span>
+    <span class="tag bg-emerald-100 text-emerald-700">주간 최고점 선정작</span>
+  </div>
+  <h1 class="text-3xl md:text-4xl font-bold text-stone-900 leading-tight mb-3">DMF: Deterministic Memory Framework<br><span class="text-xl font-semibold text-stone-500">for Conversational AI Agents</span></h1>
+  <p class="text-stone-500 sans text-sm mb-4">Matteo Stabile, Enrico Zimuel &nbsp;·&nbsp; <a href="https://arxiv.org/abs/2606.03463v1" target="_blank" class="accent underline underline-offset-2">arxiv.org/abs/2606.03463</a></p>
+  <p class="text-lg text-stone-700 leading-relaxed border-l-4 border-violet-300 pl-4">LLM 기반 요약을 완전히 제거하고, 고전 NLP·벡터 기하학·수학적 스코링만으로 대화 메모리를 결정론적으로 관리함으로써 <strong>토큰 비용을 최대 242배</strong> 절감할 수 있다.</p>
+</section>
+
+<!-- Key Insight -->
+<section class="max-w-3xl mx-auto px-6 pb-10">
+  <h2 class="text-xl font-bold text-stone-800 mb-4">핵심 인사이트</h2>
+  <div class="grid md:grid-cols-3 gap-4">
+    <div class="bg-white border border-stone-200 rounded-xl p-5">
+      <div class="text-2xl mb-2">🎯</div>
+      <h3 class="font-bold text-stone-800 mb-1">Survival Score Ω</h3>
+      <p class="text-sm text-stone-600 leading-relaxed">각 대화 인터랙션에 결정론적 생존 점수를 부여. 콘텐츠 신호 + 대화 큐 + 출처 구조를 로지스틱 함수로 결합.</p>
+    </div>
+    <div class="bg-white border border-stone-200 rounded-xl p-5">
+      <div class="text-2xl mb-2">📉</div>
+      <h3 class="font-bold text-stone-800 mb-1">상호작용 기반 감쇠</h3>
+      <p class="text-sm text-stone-600 leading-relaxed">시간이 아닌 새로운 턴 수(Δn)에 따라 Ω가 감쇠. 완전한 결정론 유지하며 오래된 기억을 자연스럽게 희석.</p>
+    </div>
+    <div class="bg-white border border-stone-200 rounded-xl p-5">
+      <div class="text-2xl mb-2">⚡</div>
+      <h3 class="font-bold text-stone-800 mb-1">Zero LLM 토큰</h3>
+      <p class="text-sm text-stone-600 leading-relaxed">메모리 관리 루프에서 LLM 호출 완전 제거. CPU만으로 동작하며 Mem0 대비 5~242배 토큰 절감.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Interactive Demo -->
+<section class="max-w-3xl mx-auto px-6 pb-12">
+  <h2 class="text-xl font-bold text-stone-800 mb-2">인터랙티브 데모</h2>
+  <p class="text-stone-600 text-sm mb-6">대화 메시지를 추가하고, Survival Score(Ω)가 계산되는 과정을 확인하세요. 새 턴이 쌓일수록 오래된 기억이 감쇠됩니다.</p>
+
+  <!-- Input -->
+  <div class="bg-white border border-stone-200 rounded-xl p-5 mb-5">
+    <h3 class="font-semibold text-stone-700 mb-3 sans text-sm uppercase tracking-wide">새 대화 추가</h3>
+    <div class="flex flex-col gap-3">
+      <div>
+        <label class="block text-xs font-semibold text-stone-500 mb-1">메시지 내용</label>
+        <input id="msgInput" type="text" placeholder="예: 내 이름은 김민준이고 서울에 살아요." class="w-full border border-stone-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-300" style="font-family:inherit">
+      </div>
+      <div class="grid grid-cols-3 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-stone-500 mb-1">엔티티 밀도 <span class="text-stone-400">(0–1)</span></label>
+          <input id="entitySlider" type="range" min="0" max="1" step="0.05" value="0.5" class="w-full">
+          <div class="text-xs text-center text-violet-600 font-bold" id="entityVal">0.50</div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-stone-500 mb-1">감정 강도 <span class="text-stone-400">(0–1)</span></label>
+          <input id="sentSlider" type="range" min="0" max="1" step="0.05" value="0.3" class="w-full">
+          <div class="text-xs text-center text-violet-600 font-bold" id="sentVal">0.30</div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-stone-500 mb-1">명시적 중요도 <span class="text-stone-400">(0–1)</span></label>
+          <input id="impSlider" type="range" min="0" max="1" step="0.05" value="0.4" class="w-full">
+          <div class="text-xs text-center text-violet-600 font-bold" id="impVal">0.40</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="flex-1">
+          <label class="block text-xs font-semibold text-stone-500 mb-1">감쇠율 λ <span class="text-stone-400">(0.01–0.3)</span></label>
+          <input id="lambdaSlider" type="range" min="0.01" max="0.3" step="0.01" value="0.1" class="w-full">
+          <div class="text-xs text-center text-violet-600 font-bold" id="lambdaVal">0.10</div>
+        </div>
+        <div class="flex-1">
+          <label class="block text-xs font-semibold text-stone-500 mb-1">가지치기 임계값 θ</label>
+          <input id="thetaSlider" type="range" min="0.1" max="0.6" step="0.05" value="0.25" class="w-full">
+          <div class="text-xs text-center text-pink-500 font-bold" id="thetaVal">0.25</div>
+        </div>
+      </div>
+      <button onclick="addMemory()" class="bg-violet-600 hover:bg-violet-700 text-white rounded-lg px-5 py-2 text-sm font-semibold transition-colors">+ 메모리 추가</button>
+    </div>
+  </div>
+
+  <!-- Memory Table -->
+  <div class="bg-white border border-stone-200 rounded-xl p-5 mb-5">
+    <div class="flex justify-between items-center mb-3">
+      <h3 class="font-semibold text-stone-700 sans text-sm uppercase tracking-wide">메모리 슬롯</h3>
+      <div class="flex gap-2 text-xs sans">
+        <span class="bg-violet-100 text-violet-700 px-2 py-0.5 rounded" id="activeCount">활성: 0</span>
+        <span class="bg-stone-100 text-stone-500 px-2 py-0.5 rounded" id="prunedCount">가지치기: 0</span>
+      </div>
+    </div>
+    <div id="memoryTable" class="space-y-2 min-h-[60px]">
+      <p class="text-sm text-stone-400 italic text-center py-4">아직 추가된 메모리가 없습니다.</p>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <div class="bg-white border border-stone-200 rounded-xl p-5">
+    <h3 class="font-semibold text-stone-700 sans text-sm uppercase tracking-wide mb-3">Ω<sub>eff</sub>(Δn) — 유효 생존 점수 감쇠 곡선</h3>
+    <canvas id="decayChart" height="160"></canvas>
+    <p class="text-xs text-stone-400 mt-2 text-center">각 메모리의 초기 Ω₀와 감쇠율 λ에 따른 Ω_eff = Ω₀ · e<sup>-λΔn</sup> 시각화</p>
+  </div>
+</section>
+
+<!-- Business Analysis -->
+<section class="max-w-3xl mx-auto px-6 pb-12">
+  <h2 class="text-xl font-bold text-stone-800 mb-4">비즈니스 분석</h2>
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-white border border-stone-200 rounded-xl p-5">
+      <div class="tag bg-violet-100 text-violet-700 mb-3">Wedge Pitch</div>
+      <p class="text-sm text-stone-700 leading-relaxed">엔터프라이즈 AI 에이전트 개발사의 <strong>메모리 비용 폭증과 불투명한 컨텍스트 소실 문제</strong>를 결정론적 메모리 레이어 SaaS로 해결한다. 감사(audit) 요건과 GDPR을 동시에 충족.</p>
+    </div>
+    <div class="bg-white border border-stone-200 rounded-xl p-5">
+      <div class="tag bg-emerald-100 text-emerald-700 mb-3">Target Customer</div>
+      <p class="text-sm text-stone-700 leading-relaxed">LLM 기반 <strong>고객지원·세일즈 자동화 챗봇</strong>을 운영하며 월 수천만 토큰 비용과 감사 요건을 동시에 고민하는 B2B SaaS 또는 콜센터 AI 플랫폼 팀.</p>
+    </div>
+    <div class="bg-white border border-stone-200 rounded-xl p-5">
+      <div class="tag bg-stone-100 text-stone-600 mb-3">Competitors</div>
+      <ul class="text-sm text-stone-700 space-y-1">
+        <li>• <strong>Mem0 (MemGPT)</strong> — LLM 기반, 높은 토큰 비용</li>
+        <li>• <strong>Zep AI</strong> — 벡터 DB 의존, 비결정론적</li>
+        <li>• <strong>LangChain Memory</strong> — 범용, 전문성 부족</li>
+      </ul>
+      <p class="text-xs text-stone-400 mt-2">TAM: $8,000,000,000</p>
+    </div>
+    <div class="bg-white border border-stone-200 rounded-xl p-5">
+      <div class="tag bg-pink-100 text-pink-600 mb-3">Unicorn Scenario</div>
+      <p class="text-sm text-stone-700 leading-relaxed">AI 에이전트 인프라 레이어로 포지셔닝, 컴플라이언스 요건을 충족하는 <strong>유일한 결정론적 메모리 API</strong>로 자리잡아 2029년까지 1만+ AI 앱 임베드, <strong>$1B ARR</strong> 도달.</p>
+    </div>
+  </div>
+  <div class="mt-4 bg-violet-50 border border-violet-200 rounded-xl p-4 flex items-start gap-3">
+    <span class="text-violet-500 text-lg">⚡</span>
+    <div>
+      <span class="sans font-semibold text-violet-700 text-sm">Flux 시너지</span>
+      <p class="text-sm text-stone-600 mt-0.5">결정론적 메모리 시스템은 Flux Agent 플랫폼의 비용 최적화 레이어로 직접 통합 가능. 토큰 절감 공유 수익 모델 적용 시 에이전트 마켓플레이스와 강력한 시너지.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="border-t border-stone-200 bg-white">
+  <div class="max-w-3xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center gap-3 text-sm text-stone-400">
+    <div>Built with <a href="https://flux.ai.kr" target="_blank" class="accent font-semibold hover:underline">Flux Agent</a> &nbsp;·&nbsp; <a href="https://flux.ai.kr" target="_blank" class="hover:text-stone-600 underline underline-offset-2">flux.ai.kr</a></div>
+    <a href="https://arxiv.org/abs/2606.03463v1" target="_blank" class="hover:text-violet-600 underline underline-offset-2">논문 원문 →</a>
+  </div>
+</footer>
+
+<script defer>
+  const memories = [];
+  let chart = null;
+
+  function logistic(x) { return 1 / (1 + Math.exp(-x)); }
+  function computeOmega(entity, sentiment, importance) {
+    const raw = 0.4 * entity + 0.3 * sentiment + 0.3 * importance;
+    return logistic(6 * raw - 3);
+  }
+  function omegaEff(omega0, lambda, dn) { return omega0 * Math.exp(-lambda * dn); }
+
+  function sliderBind(sliderId, valId) {
+    const s = document.getElementById(sliderId);
+    const v = document.getElementById(valId);
+    s.addEventListener('input', () => { v.textContent = parseFloat(s.value).toFixed(2); updateAll(); });
+  }
+  sliderBind('entitySlider','entityVal');
+  sliderBind('sentSlider','sentVal');
+  sliderBind('impSlider','impVal');
+  sliderBind('lambdaSlider','lambdaVal');
+  sliderBind('thetaSlider','thetaVal');
+
+  function getLambda() { return parseFloat(document.getElementById('lambdaSlider').value); }
+  function getTheta() { return parseFloat(document.getElementById('thetaSlider').value); }
+
+  function addMemory() {
+    const msg = document.getElementById('msgInput').value.trim() || `대화 #${memories.length+1}`;
+    const entity = parseFloat(document.getElementById('entitySlider').value);
+    const sent = parseFloat(document.getElementById('sentSlider').value);
+    const imp = parseFloat(document.getElementById('impSlider').value);
+    const omega0 = computeOmega(entity, sent, imp);
+    memories.push({ msg, omega0, entity, sent, imp, turn: memories.length });
+    document.getElementById('msgInput').value = '';
+    updateAll();
+  }
+
+  function updateAll() {
+    const lambda = getLambda();
+    const theta = getTheta();
+    const n = memories.length;
+    const table = document.getElementById('memoryTable');
+
+    if (n === 0) {
+      table.innerHTML = '<p class="text-sm text-stone-400 italic text-center py-4">아직 추가된 메모리가 없습니다.</p>';
+      document.getElementById('activeCount').textContent = '활성: 0';
+      document.getElementById('prunedCount').textContent = '가지치기: 0';
+      rebuildChart([]);
+      return;
+    }
+
+    let active = 0, pruned = 0;
+    table.innerHTML = '';
+    memories.forEach((m, i) => {
+      const dn = n - 1 - i;
+      const eff = omegaEff(m.omega0, lambda, dn);
+      const isPruned = eff < theta;
+      if (isPruned) pruned++; else active++;
+      const pct = Math.round(eff * 100);
+      const barColor = isPruned ? '#d6d3d1' : (eff > 0.6 ? '#7c3aed' : '#a78bfa');
+      const row = document.createElement('div');
+      row.className = `mem-row p-3 rounded-lg border text-xs ${isPruned ? 'border-stone-100 bg-stone-50' : 'border-violet-100 bg-violet-50'} fade-in`;
+      row.innerHTML = `
+        <div class="flex justify-between items-start mb-1.5 gap-2">
+          <span class="font-medium ${isPruned ? 'text-stone-400 line-through' : 'text-stone-700'} truncate flex-1">${m.msg}</span>
+          <div class="flex gap-1 flex-shrink-0">
+            <span class="tag ${isPruned ? 'bg-stone-200 text-stone-400' : 'bg-white text-violet-700 border border-violet-200'}">Ω₀ ${m.omega0.toFixed(3)}</span>
+            <span class="tag ${isPruned ? 'bg-stone-200 text-stone-400' : 'bg-white text-stone-600 border border-stone-200'}">Δn=${dn}</span>
+            <span class="tag ${isPruned ? 'bg-red-100 text-red-400' : 'bg-emerald-100 text-emerald-700'}">${isPruned ? '🗑 가지치기' : '✓ 활성'}</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="flex-1 bg-stone-200 rounded-full h-1.5 overflow-hidden">
+            <div class="score-bar h-1.5 rounded-full" style="width:${pct}%;background:${barColor}"></div>
+          </div>
+          <span class="font-bold ${isPruned ? 'text-stone-400' : 'text-violet-700'} w-16 text-right">Ω_eff ${eff.toFixed(3)}</span>
+        </div>`;
+      table.appendChild(row);
+    });
+    document.getElementById('activeCount').textContent = `활성: ${active}`;
+    document.getElementById('prunedCount').textContent = `가지치기: ${pruned}`;
+    rebuildChart(memories.map((m, i) => ({ m, dn_at: n - 1 - i })));
+  }
+
+  function rebuildChart(items) {
+    const lambda = getLambda();
+    const theta = getTheta();
+    const ctx = document.getElementById('decayChart').getContext('2d');
+    const maxDn = Math.max(20, items.length + 5);
+    const labels = Array.from({ length: maxDn + 1 }, (_, i) => i);
+    const datasets = [];
+    const colors = ['#7c3aed','#a78bfa','#c4b5fd','#6d28d9','#8b5cf6','#4c1d95'];
+    items.slice(-5).forEach((item, idx) => {
+      datasets.push({
+        label: `M${item.m.turn + 1}: ${item.m.msg.slice(0, 12)}…`,
+        data: labels.map(dn => omegaEff(item.m.omega0, lambda, dn)),
+        borderColor: colors[idx % colors.length],
+        backgroundColor: 'transparent',
+        borderWidth: 1.5,
+        pointRadius: 0,
+        tension: 0.3
+      });
+    });
+    datasets.push({
+      label: `임계값 θ=${theta.toFixed(2)}`,
+      data: labels.map(() => theta),
+      borderColor: '#f43f5e',
+      borderDash: [4, 3],
+      borderWidth: 1,
+      pointRadius: 0,
+      backgroundColor: 'transparent'
+    });
+    if (chart) chart.destroy();
+    chart = new Chart(ctx, {
+      type: 'line',
+      data: { labels, datasets },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { labels: { font: { family: 'Pretendard,Inter,sans-serif', size: 11 }, color: '#78716c', boxWidth: 16 } },
+          tooltip: { mode: 'index', intersect: false }
+        },
+        scales: {
+          x: { title: { display: true, text: 'Δn (새로운 턴 수)', font: { family: 'Pretendard', size: 11 }, color: '#a8a29e' }, ticks: { font: { size: 10 }, color: '#a8a29e' }, grid: { color: '#f5f5f4' } },
+          y: { min: 0, max: 1, title: { display: true, text: 'Ω_eff', font: { family: 'Pretendard', size: 11 }, color: '#a8a29e' }, ticks: { font: { size: 10 }, color: '#a8a29e' }, grid: { color: '#f5f5f4' } }
+        }
+      }
+    });
+  }
+
+  // Init chart empty
+  rebuildChart([]);
+</script>
+</html>
