@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgentRiskBOM — AI 에이전트 보안 위험 스코어링 데모</title>
+  <meta property="og:title" content="AgentRiskBOM: AI 에이전트 보안 BOM 인터랙티브 데모">
+  <meta property="og:description" content="에이전트 AI 시스템의 런타임 권한·도구 접근성·감사 신호를 구조화하는 AgentRiskBOM 프레임워크를 직접 체험해보세요.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Noto+Serif+KR:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    body { font-family: 'Source Serif 4', 'Noto Serif KR', Charter, Georgia, serif; background: #fafaf9; color: #1c1917; }
+    h1,h2,h3,h4,h5,h6,button,label,nav,.sans,.tag { font-family: 'Pretendard', 'Inter', system-ui, -apple-system, sans-serif; }
+    .fade-in { animation: fadeIn 0.6s ease both; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    input[type=range] { accent-color: #7c3aed; }
+    .bom-bar { transition: width 0.5s ease; }
+    .risk-badge { font-family: 'Pretendard','Inter',sans-serif; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<!-- Hero -->
+<header class="max-w-3xl mx-auto px-6 pt-16 pb-10 fade-in">
+  <div class="flex flex-wrap gap-2 mb-4">
+    <span class="tag risk-badge px-2 py-0.5 bg-violet-100 text-violet-700 rounded">arXiv 2606.21877</span>
+    <span class="tag risk-badge px-2 py-0.5 bg-stone-100 text-stone-600 rounded">AI Security</span>
+    <span class="tag risk-badge px-2 py-0.5 bg-pink-50 text-pink-600 rounded">BOM</span>
+  </div>
+  <h1 class="text-3xl md:text-4xl font-bold text-stone-900 leading-tight mb-3">AgentRiskBOM</h1>
+  <p class="text-lg text-stone-600 mb-2 serif" style="font-family:'Source Serif 4','Noto Serif KR',serif;">A Risk-Scoping Security Bill of Materials for Agentic AI Systems</p>
+  <p class="text-sm sans text-stone-400 mb-5">Srimonti Dutta, Akshata Kishore Moharir &nbsp;·&nbsp; <a href="https://arxiv.org/abs/2606.21877v1" class="text-violet-600 hover:underline" target="_blank" rel="noopener">arxiv.org/abs/2606.21877</a></p>
+  <p class="text-base text-stone-700 leading-relaxed max-w-2xl" style="font-family:'Source Serif 4','Noto Serif KR',serif;">
+    에이전트 AI가 도구를 호출하고, 파일을 쓰고, 외부 서비스를 연동하는 시대 — 기존 SBOM/AIBOM은 <em>무엇을 할 수 있는가</em>를 기록하지 못합니다. AgentRiskBOM은 런타임 권한·도구 접근·감사 신호를 구조화한 최초의 에이전트 보안 BOM 표준입니다.
+  </p>
+</header>
+
+<!-- Key Insight -->
+<section class="max-w-3xl mx-auto px-6 mb-12 fade-in">
+  <div class="grid md:grid-cols-3 gap-4">
+    <div class="border border-stone-200 rounded-lg p-5 bg-white">
+      <div class="text-2xl font-bold text-violet-600 sans mb-1">14 / 16</div>
+      <div class="text-sm text-stone-600 sans font-medium mb-1">Capability 커버리지 차원</div>
+      <p class="text-xs text-stone-500" style="font-family:'Source Serif 4','Noto Serif KR',serif;">AgentRiskBOM vs. SBOM(1), AIBOM(1.5), MLBOM(2)</p>
+    </div>
+    <div class="border border-stone-200 rounded-lg p-5 bg-white">
+      <div class="text-2xl font-bold text-pink-500 sans mb-1">100%</div>
+      <div class="text-sm text-stone-600 sans font-medium mb-1">위험 카테고리 가시성</div>
+      <p class="text-xs text-stone-500" style="font-family:'Source Serif 4','Noto Serif KR',serif;">SBOM-like 10.5%, AIBOM-like 20.9% 대비</p>
+    </div>
+    <div class="border border-stone-200 rounded-lg p-5 bg-white">
+      <div class="text-2xl font-bold text-stone-700 sans mb-1">33 / 33</div>
+      <div class="text-sm text-stone-600 sans font-medium mb-1">권한 변이 탐지 정확도</div>
+      <p class="text-xs text-stone-500" style="font-family:'Source Serif 4','Noto Serif KR',serif;">52개 리스크 시나리오 × 14개 카테고리 평가</p>
+    </div>
+  </div>
+</section>
+
+<!-- Interactive Demo -->
+<section class="max-w-3xl mx-auto px-6 mb-14 fade-in">
+  <h2 class="text-xl font-bold text-stone-900 mb-1">인터랙티브 데모: AgentRiskBOM 위험 스코어링</h2>
+  <p class="text-sm text-stone-500 sans mb-6">에이전트의 런타임 속성을 설정하고, BOM 뷰 별 가시성과 종합 위험 점수를 비교해보세요.</p>
+
+  <div class="grid md:grid-cols-2 gap-6">
+    <!-- Controls -->
+    <div class="border border-stone-200 rounded-lg p-5 bg-white space-y-4">
+      <h3 class="text-sm font-bold text-stone-700 sans uppercase tracking-wide mb-3">에이전트 속성 설정</h3>
+
+      <div>
+        <label class="text-xs font-semibold text-stone-600 sans block mb-1">자율성 수준 (Autonomy Level) <span id="lbl-autonomy" class="text-violet-600">3</span></label>
+        <input type="range" min="1" max="5" value="3" id="sl-autonomy" class="w-full">
+        <div class="flex justify-between text-xs text-stone-400 sans mt-0.5"><span>감독 필요</span><span>완전 자율</span></div>
+      </div>
+
+      <div>
+        <label class="text-xs font-semibold text-stone-600 sans block mb-1">도구 권한 수 (Tool Permissions) <span id="lbl-tools" class="text-violet-600">4</span></label>
+        <input type="range" min="0" max="10" value="4" id="sl-tools" class="w-full">
+        <div class="flex justify-between text-xs text-stone-400 sans mt-0.5"><span>0개</span><span>10개</span></div>
+      </div>
+
+      <div>
+        <label class="text-xs font-semibold text-stone-600 sans block mb-1">메모리 지속성 (Memory Scope)</label>
+        <select id="sel-memory" class="sans w-full text-xs border border-stone-200 rounded px-2 py-1.5 bg-stone-50 text-stone-700">
+          <option value="none">없음 (Stateless)</option>
+          <option value="session">세션 내</option>
+          <option value="persistent" selected>영구 저장</option>
+          <option value="shared">멀티에이전트 공유</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="text-xs font-semibold text-stone-600 sans block mb-1">외부 서비스 연동</label>
+        <div class="flex flex-wrap gap-2 mt-1">
+          <label class="flex items-center gap-1 text-xs sans text-stone-600 cursor-pointer"><input type="checkbox" id="chk-api" checked class="accent-violet-600"> 외부 API</label>
+          <label class="flex items-center gap-1 text-xs sans text-stone-600 cursor-pointer"><input type="checkbox" id="chk-db" class="accent-violet-600"> DB 쓰기</label>
+          <label class="flex items-center gap-1 text-xs sans text-stone-600 cursor-pointer"><input type="checkbox" id="chk-email" class="accent-violet-600"> 이메일/알림</label>
+          <label class="flex items-center gap-1 text-xs sans text-stone-600 cursor-pointer"><input type="checkbox" id="chk-agent" class="accent-violet-600"> 에이전트 위임</label>
+        </div>
+      </div>
+
+      <div>
+        <label class="text-xs font-semibold text-stone-600 sans block mb-1">승인 게이트 (Approval Gates)</label>
+        <select id="sel-gate" class="sans w-full text-xs border border-stone-200 rounded px-2 py-1.5 bg-stone-50 text-stone-700">
+          <option value="none">없음</option>
+          <option value="soft">소프트 (로그만)</option>
+          <option value="hard" selected>하드 (인간 승인)</option>
+          <option value="auto">자동 정책 기반</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="text-xs font-semibold text-stone-600 sans block mb-1">감사 로그 수준</label>
+        <select id="sel-audit" class="sans w-full text-xs border border-stone-200 rounded px-2 py-1.5 bg-stone-50 text-stone-700">
+          <option value="none">없음</option>
+          <option value="basic">기본 (오류만)</option>
+          <option value="full" selected>전체 행동 기록</option>
+          <option value="immutable">불변 감사 체인</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="space-y-4">
+      <!-- Risk Score -->
+      <div class="border border-stone-200 rounded-lg p-5 bg-white">
+        <h3 class="text-xs font-bold text-stone-600 sans uppercase tracking-wide mb-3">종합 위험 점수</h3>
+        <div class="flex items-end gap-3 mb-3">
+          <span id="score-val" class="text-4xl font-bold sans text-stone-900">—</span>
+          <span class="text-sm text-stone-400 sans mb-1">/ 100</span>
+          <span id="score-badge" class="risk-badge px-2 py-0.5 rounded ml-auto"></span>
+        </div>
+        <div class="w-full bg-stone-100 rounded-full h-2 mb-1">
+          <div id="score-bar" class="bom-bar h-2 rounded-full bg-violet-500" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- BOM Coverage Comparison -->
+      <div class="border border-stone-200 rounded-lg p-5 bg-white">
+        <h3 class="text-xs font-bold text-stone-600 sans uppercase tracking-wide mb-3">BOM 뷰별 위험 가시성</h3>
+        <div class="space-y-2" id="bom-bars">
+          <div>
+            <div class="flex justify-between text-xs sans text-stone-600 mb-0.5"><span>AgentRiskBOM</span><span id="pct-agent">—</span></div>
+            <div class="w-full bg-stone-100 rounded-full h-2"><div id="bar-agent" class="bom-bar h-2 rounded-full bg-violet-500" style="width:0%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs sans text-stone-600 mb-0.5"><span>MLBOM</span><span id="pct-ml">—</span></div>
+            <div class="w-full bg-stone-100 rounded-full h-2"><div id="bar-ml" class="bom-bar h-2 rounded-full bg-stone-400" style="width:0%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs sans text-stone-600 mb-0.5"><span>AIBOM</span><span id="pct-ai">—</span></div>
+            <div class="w-full bg-stone-100 rounded-full h-2"><div id="bar-ai" class="bom-bar h-2 rounded-full bg-stone-300" style="width:0%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs sans text-stone-600 mb-0.5"><span>SBOM</span><span id="pct-sb">—</span></div>
+            <div class="w-full bg-stone-100 rounded-full h-2"><div id="bar-sb" class="bom-bar h-2 rounded-full bg-stone-200" style="width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detected Risk Flags -->
+      <div class="border border-stone-200 rounded-lg p-5 bg-white">
+        <h3 class="text-xs font-bold text-stone-600 sans uppercase tracking-wide mb-3">탐지된 위험 플래그</h3>
+        <div id="risk-flags" class="flex flex-wrap gap-1.5 min-h-[40px]"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JSON Preview -->
+  <div class="mt-5 border border-stone-200 rounded-lg bg-stone-50 p-4">
+    <div class="flex items-center justify-between mb-2">
+      <h3 class="text-xs font-bold text-stone-600 sans uppercase tracking-wide">AgentRiskBOM JSON 스키마 미리보기</h3>
+      <span class="text-xs text-stone-400 sans">실시간 업데이트</span>
+    </div>
+    <pre id="json-preview" class="text-xs text-stone-700 overflow-x-auto sans leading-relaxed whitespace-pre-wrap"></pre>
+  </div>
+</section>
+
+<!-- Business Analysis -->
+<section class="max-w-3xl mx-auto px-6 mb-14 fade-in">
+  <h2 class="text-xl font-bold text-stone-900 mb-1">비즈니스 분석</h2>
+  <p class="text-sm text-stone-500 sans mb-6">AgentRiskBOM이 열어가는 시장 기회</p>
+
+  <div class="grid md:grid-cols-2 gap-4 mb-4">
+    <div class="border border-stone-200 rounded-lg p-5 bg-white">
+      <div class="tag risk-badge px-2 py-0.5 bg-violet-100 text-violet-700 rounded inline-block mb-3">Wedge Pitch</div>
+      <p class="text-sm text-stone-700 leading-relaxed" style="font-family:'Source Serif 4','Noto Serif KR',serif;">엔터프라이즈 AI 에이전트 배포팀의 보안 컴플라이언스 페인을 AgentRiskBOM 기반 <strong>자동 위험 스코어링 SaaS</strong>로 해결합니다. EU AI Act·SOC2 준수가 필요한 조직이 도구 권한·감사 로그를 머신-리더블 형태로 관리하도록 지원합니다.</p>
+    </div>
+    <div class="border border-stone-200 rounded-lg p-5 bg-white">
+      <div class="tag risk-badge px-2 py-0.5 bg-pink-50 text-pink-600 rounded inline-block mb-3">Target Customer</div>
+      <p class="text-sm text-stone-700 leading-relaxed" style="font-family:'Source Serif 4','Noto Serif KR',serif;">EU AI Act·SOC2 준수가 필요한 <strong>Fortune 500 기업</strong>의 AI/ML 엔지니어링팀 및 CISO. 프로덕션에 LLM 에이전트를 배포하면서 도구 권한·감사 로그 관리에 어려움을 겪는 조직.</p>
+    </div>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="border border-stone-200 rounded-lg p-5 bg-white">
+      <div class="tag risk-badge px-2 py-0.5 bg-stone-100 text-stone-600 rounded inline-block mb-3">경쟁사 비교</div>
+      <div class="space-y-2">
+        <div class="flex items-center justify-between text-xs sans">
+          <span class="text-stone-700 font-medium">Wiz</span><span class="text-stone-400">클라우드 포스처 관리 — 에이전트 런타임 ✗</span>
+        </div>
+        <div class="flex items-center justify-between text-xs sans">
+          <span class="text-stone-700 font-medium">Snyk</span><span class="text-stone-400">SCA/SBOM — 도구 권한 모델링 ✗</span>
+        </div>
+        <div class="flex items-center justify-between text-xs sans">
+          <span class="text-stone-700 font-medium">Protect AI</span><span class="text-stone-400">ML 보안 — 에이전트 위임 체인 ✗</span>
+        </div>
+        <div class="flex items-center justify-between text-xs sans border-t border-stone-100 pt-2 mt-2">
+          <span class="text-violet-700 font-bold">AgentRiskBOM</span><span class="text-violet-600">런타임 권한 + 감사 + 위임 ✓</span>
+        </div>
+      </div>
+    </div>
+    <div class="border border-stone-200 rounded-lg p-5 bg-white">
+      <div class="tag risk-badge px-2 py-0.5 bg-stone-100 text-stone-600 rounded inline-block mb-2">유니콘 시나리오</div>
+      <p class="text-sm text-stone-700 leading-relaxed" style="font-family:'Source Serif 4','Noto Serif KR',serif;">EU AI Act 2026 시행 시점에 <strong>SBOM→AgentRiskBOM 자동 생성·모니터링 플랫폼</strong>으로 표준 장악 후 클라우드 3사 마켓플레이스 내장 파트너십으로 ARR <strong class="text-violet-600">$200M</strong> 달성. TAM <span class="text-stone-900 font-semibold">$8B</span>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="border-t border-stone-200 bg-white mt-8">
+  <div class="max-w-3xl mx-auto px-6 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="text-xs text-stone-400 sans text-center md:text-left">
+      Built with <a href="https://flux.ai.kr" class="text-violet-600 hover:underline font-medium" target="_blank" rel="noopener">Flux Agent</a> &nbsp;·&nbsp; flux.ai.kr
+    </div>
+    <div class="text-xs text-stone-400 sans">
+      <a href="https://arxiv.org/abs/2606.21877v1" class="text-violet-600 hover:underline" target="_blank" rel="noopener">논문 원문 →</a>
+    </div>
+  </div>
+</footer>
+
+<script defer>
+(function(){
+  const slAutonomy = document.getElementById('sl-autonomy');
+  const slTools = document.getElementById('sl-tools');
+  const selMemory = document.getElementById('sel-memory');
+  const chkApi = document.getElementById('chk-api');
+  const chkDb = document.getElementById('chk-db');
+  const chkEmail = document.getElementById('chk-email');
+  const chkAgent = document.getElementById('chk-agent');
+  const selGate = document.getElementById('sel-gate');
+  const selAudit = document.getElementById('sel-audit');
+
+  slAutonomy.addEventListener('input', () => { document.getElementById('lbl-autonomy').textContent = slAutonomy.value; update(); });
+  slTools.addEventListener('input', () => { document.getElementById('lbl-tools').textContent = slTools.value; update(); });
+  [selMemory, chkApi, chkDb, chkEmail, chkAgent, selGate, selAudit].forEach(el => el.addEventListener('change', update));
+
+  function computeScore() {
+    let s = 0;
+    const a = parseInt(slAutonomy.value);
+    const t = parseInt(slTools.value);
+    const mem = selMemory.value;
+    const gate = selGate.value;
+    const audit = selAudit.value;
+
+    s += (a - 1) * 7;
+    s += t * 4;
+    s += {none:0, session:4, persistent:10, shared:16}[mem] || 0;
+    s += chkApi.checked ? 8 : 0;
+    s += chkDb.checked ? 10 : 0;
+    s += chkEmail.checked ? 6 : 0;
+    s += chkAgent.checked ? 14 : 0;
+    s -= {none:0, soft:-2, hard:-12, auto:-8}[gate] || 0;
+    s -= {none:0, basic:-2, full:-8, immutable:-14}[audit] || 0;
+
+    return Math.max(0, Math.min(100, s));
+  }
+
+  function getFlags(score, a, t, mem, gate, audit) {
+    const flags = [];
+    if (a >= 4) flags.push({label:'고자율성', color:'bg-red-100 text-red-700'});
+    if (t >= 7) flags.push({label:'과도한 도구 수', color:'bg-orange-100 text-orange-700'});
+    if (mem === 'shared') flags.push({label:'멀티에이전트 메모리 공유', color:'bg-red-100 text-red-700'});
+    if (mem === 'persistent') flags.push({label:'영구 메모리', color:'bg-yellow-100 text-yellow-700'});
+    if (chkAgent.checked) flags.push({label:'에이전트 위임 활성', color:'bg-red-100 text-red-700'});
+    if (chkDb.checked) flags.push({label:'DB 쓰기 권한', color:'bg-orange-100 text-orange-700'});
+    if (chkApi.checked) flags.push({label:'외부 API 호출', color:'bg-yellow-100 text-yellow-700'});
+    if (chkEmail.checked) flags.push({label:'이메일/알림 발송', color:'bg-yellow-100 text-yellow-700'});
+    if (gate === 'none') flags.push({label:'승인 게이트 없음 ⚠', color:'bg-red-100 text-red-700'});
+    if (audit === 'none') flags.push({label:'감사 로그 없음 ⚠', color:'bg-red-100 text-red-700'});
+    if (flags.length === 0) flags.push({label:'위험 플래그 없음 ✓', color:'bg-green-50 text-green-700'});
+    return flags;
+  }
+
+  function getBadge(score) {
+    if (score >= 70) return {label:'HIGH RISK', cls:'bg-red-100 text-red-700'};
+    if (score >= 40) return {label:'MEDIUM RISK', cls:'bg-yellow-100 text-yellow-700'};
+    return {label:'LOW RISK', cls:'bg-green-50 text-green-700'};
+  }
+
+  function getBomVisibility(score) {
+    const agent = Math.min(100, score > 0 ? 88 + Math.round(score * 0.12) : 88);
+    const ml = Math.max(5, Math.round(score * 0.21));
+    const ai = Math.max(5, Math.round(score * 0.21 * 2));
+    const sb = Math.max(3, Math.round(score * 0.11));
+    return {agent, ml, ai, sb};
+  }
+
+  function buildJSON(a, t, mem, gate, audit) {
+    const tools = [];
+    if (chkApi.checked) tools.push({name:"http_request", scope:"external", write:false});
+    if (chkDb.checked) tools.push({name:"db_write", scope:"internal", write:true});
+    if (chkEmail.checked) tools.push({name:"send_email", scope:"external", write:true});
+    if (chkAgent.checked) tools.push({name:"delegate_agent", scope:"inter_agent", write:true});
+    return JSON.stringify({
+      "schema": "AgentRiskBOM/v0.1",
+      "agent_id": "demo-agent-001",
+      "autonomy_level": a,
+      "tool_permissions": tools,
+      "memory_scope": mem,
+      "approval_gate": gate,
+      "audit_signal": audit,
+      "credential_scope": chkApi.checked || chkDb.checked ? "elevated" : "minimal",
+      "risk_score": computeScore()
+    }, null, 2);
+  }
+
+  function update() {
+    const a = parseInt(slAutonomy.value);
+    const t = parseInt(slTools.value);
+    const mem = selMemory.value;
+    const gate = selGate.value;
+    const audit = selAudit.value;
+    const score = computeScore();
+
+    document.getElementById('score-val').textContent = score;
+    document.getElementById('score-bar').style.width = score + '%';
+    const barEl = document.getElementById('score-bar');
+    barEl.className = `bom-bar h-2 rounded-full ${score >= 70 ? 'bg-red-400' : score >= 40 ? 'bg-yellow-400' : 'bg-green-400'}`;
+
+    const badge = getBadge(score);
+    const badgeEl = document.getElementById('score-badge');
+    badgeEl.textContent = badge.label;
+    badgeEl.className = `risk-badge px-2 py-0.5 rounded ${badge.cls}`;
+
+    const vis = getBomVisibility(score);
+    ['agent','ml','ai','sb'].forEach(key => {
+      document.getElementById('pct-'+key).textContent = vis[key] + '%';
+      document.getElementById('bar-'+key).style.width = vis[key] + '%';
+    });
+
+    const flags = getFlags(score, a, t, mem, gate, audit);
+    const flagsEl = document.getElementById('risk-flags');
+    flagsEl.innerHTML = flags.map(f => `<span class="risk-badge px-2 py-0.5 rounded ${f.color}">${f.label}</span>`).join('');
+
+    document.getElementById('json-preview').textContent = buildJSON(a, t, mem, gate, audit);
+  }
+
+  update();
+})();
+</script>
+</body>
+</html>
