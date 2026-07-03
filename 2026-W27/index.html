@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 에이전트 거버넌스 — 직원처럼 관리하라</title>
+  <meta property="og:title" content="AI 에이전트 거버넌스 — 직원처럼 관리하라">
+  <meta property="og:description" content="AI 에이전트가 직원보다 광범위한 접근권을 가지면서도 거버넌스 사각지대에 놓여 있는 현실을 시뮬레이션합니다.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Noto+Serif+KR:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Source Serif 4', 'Noto Serif KR', Charter, Georgia, serif; background: #fafaf9; color: #292524; }
+    h1,h2,h3,h4,h5,h6,button,label,nav,.sans,.tag { font-family: 'Pretendard', 'Inter', system-ui, -apple-system, sans-serif; }
+    .fade-in { animation: fadeIn 0.6s ease both; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+    .risk-bar { transition: width 0.5s ease; }
+    .log-row { animation: fadeIn 0.3s ease both; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<!-- Hero -->
+<section class="max-w-3xl mx-auto px-6 pt-16 pb-10">
+  <div class="mb-4 flex flex-wrap gap-2 items-center">
+    <span class="tag text-xs font-medium px-2.5 py-1 rounded-full border border-violet-200 text-violet-600 bg-violet-50">AI Governance</span>
+    <span class="tag text-xs font-medium px-2.5 py-1 rounded-full border border-stone-200 text-stone-500 bg-stone-50">Security</span>
+    <span class="tag text-xs font-medium px-2.5 py-1 rounded-full border border-stone-200 text-stone-500 bg-stone-50">Forbes Tech Council · 2026</span>
+  </div>
+  <h1 class="text-3xl md:text-4xl font-bold text-stone-900 leading-tight mb-4">AI 에이전트는 이미 직원입니다.<br>그런데 왜 직원처럼 관리하지 않나요?</h1>
+  <p class="text-lg text-stone-600 leading-relaxed mb-6">우리는 수십 년간 인간 직원의 접근 권한 거버넌스 체계를 구축했습니다. 그리고 AI 에이전트에게는 대부분의 직원보다 광범위한 접근권을, 감시 없이 부여했습니다.</p>
+  <a href="https://www.forbes.com/councils/forbestechcouncil/2026/06/11/ai-agents-are-becoming-employees-so-why-arent-we-governing-them-like-one/" target="_blank" rel="noopener" class="sans inline-flex items-center gap-1.5 text-sm font-medium text-violet-600 hover:text-violet-800 underline underline-offset-2">원문 보기 →</a>
+</section>
+
+<!-- Key Insight -->
+<section class="max-w-3xl mx-auto px-6 pb-10">
+  <div class="grid md:grid-cols-3 gap-4">
+    <div class="bg-white border border-stone-200 rounded-xl p-5">
+      <div class="sans text-2xl font-bold text-violet-600 mb-1">87%</div>
+      <p class="text-sm text-stone-600">기업 AI 에이전트가 감사 로그 없이 시스템에 접근 중 (추정)</p>
+    </div>
+    <div class="bg-white border border-stone-200 rounded-xl p-5">
+      <div class="sans text-2xl font-bold text-pink-500 mb-1">3.2×</div>
+      <p class="text-sm text-stone-600">AI 에이전트의 평균 접근 범위가 일반 직원의 3배 이상</p>
+    </div>
+    <div class="bg-white border border-stone-200 rounded-xl p-5">
+      <div class="sans text-2xl font-bold text-stone-700 mb-1">$0</div>
+      <p class="text-sm text-stone-600">대부분 기업의 AI 에이전트 신원 거버넌스 예산</p>
+    </div>
+  </div>
+</section>
+
+<!-- Interactive Demo -->
+<section class="max-w-3xl mx-auto px-6 pb-14">
+  <h2 class="text-2xl font-bold text-stone-900 mb-2">인터랙티브 데모: AI 에이전트 거버넌스 시뮬레이터</h2>
+  <p class="text-stone-600 mb-6 leading-relaxed">조직 내 AI 에이전트를 설정하고, 거버넌스 적용 전후 리스크 노출도를 비교해보세요.</p>
+
+  <div class="bg-white border border-stone-200 rounded-2xl overflow-hidden">
+    <!-- Tab Nav -->
+    <div class="sans flex border-b border-stone-100 bg-stone-50">
+      <button onclick="showTab('setup')" id="tab-setup" class="px-5 py-3 text-sm font-medium text-violet-600 border-b-2 border-violet-500 -mb-px">① 에이전트 설정</button>
+      <button onclick="showTab('risk')" id="tab-risk" class="px-5 py-3 text-sm font-medium text-stone-400 hover:text-stone-700">② 리스크 분석</button>
+      <button onclick="showTab('log')" id="tab-log" class="px-5 py-3 text-sm font-medium text-stone-400 hover:text-stone-700">③ 감사 로그</button>
+    </div>
+
+    <!-- Tab: Setup -->
+    <div id="panel-setup" class="p-6 space-y-5">
+      <div>
+        <label class="block text-sm font-semibold text-stone-700 mb-1.5">에이전트 유형</label>
+        <select id="agentType" class="sans w-full border border-stone-200 rounded-lg px-3 py-2 text-sm text-stone-800 bg-white focus:outline-none focus:ring-2 focus:ring-violet-300">
+          <option value="sales">영업 자동화 에이전트</option>
+          <option value="hr">HR 채용 심사 에이전트</option>
+          <option value="finance">재무 결재 승인 에이전트</option>
+          <option value="it">IT 인프라 관리 에이전트</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-stone-700 mb-2">접근 권한 범위</label>
+        <div class="space-y-2" id="permCheckboxes">
+          <label class="flex items-center gap-2 text-sm text-stone-700 cursor-pointer"><input type="checkbox" class="perm-cb accent-violet-600" value="crm" checked> CRM / 고객 데이터</label>
+          <label class="flex items-center gap-2 text-sm text-stone-700 cursor-pointer"><input type="checkbox" class="perm-cb accent-violet-600" value="finance" checked> 재무 시스템</label>
+          <label class="flex items-center gap-2 text-sm text-stone-700 cursor-pointer"><input type="checkbox" class="perm-cb accent-violet-600" value="hr"> HR / 인사 데이터</label>
+          <label class="flex items-center gap-2 text-sm text-stone-700 cursor-pointer"><input type="checkbox" class="perm-cb accent-violet-600" value="infra"> 인프라 / 클라우드 콘솔</label>
+          <label class="flex items-center gap-2 text-sm text-stone-700 cursor-pointer"><input type="checkbox" class="perm-cb accent-violet-600" value="email"> 이메일 / 커뮤니케이션</label>
+          <label class="flex items-center gap-2 text-sm text-stone-700 cursor-pointer"><input type="checkbox" class="perm-cb accent-violet-600" value="code"> 코드 저장소</label>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-stone-700 mb-2">거버넌스 적용</label>
+        <div class="space-y-2">
+          <label class="flex items-center gap-2 text-sm text-stone-700 cursor-pointer"><input type="checkbox" id="gov-rbac" class="gov-cb accent-violet-600"> 역할 기반 접근 제어 (RBAC)</label>
+          <label class="flex items-center gap-2 text-sm text-stone-700 cursor-pointer"><input type="checkbox" id="gov-audit" class="gov-cb accent-violet-600"> 감사 로그 활성화</label>
+          <label class="flex items-center gap-2 text-sm text-stone-700 cursor-pointer"><input type="checkbox" id="gov-approval" class="gov-cb accent-violet-600"> 민감 작업 승인 워크플로우</label>
+          <label class="flex items-center gap-2 text-sm text-stone-700 cursor-pointer"><input type="checkbox" id="gov-monitor" class="gov-cb accent-violet-600"> 실시간 모니터링</label>
+        </div>
+      </div>
+      <button onclick="analyze()" class="sans w-full bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold py-2.5 rounded-lg transition-colors">리스크 분석 실행 →</button>
+    </div>
+
+    <!-- Tab: Risk -->
+    <div id="panel-risk" class="p-6 hidden">
+      <h3 class="sans text-base font-semibold text-stone-800 mb-4">리스크 노출 분석</h3>
+      <div class="space-y-3" id="riskBars"></div>
+      <div class="mt-5 p-4 rounded-lg border" id="riskSummary"></div>
+    </div>
+
+    <!-- Tab: Log -->
+    <div id="panel-log" class="p-6 hidden">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="sans text-base font-semibold text-stone-800">감사 로그 시뮬레이션</h3>
+        <button onclick="addLogEntry()" class="sans text-xs font-medium px-3 py-1.5 border border-stone-200 rounded-lg hover:bg-stone-50 text-stone-600">+ 이벤트 추가</button>
+      </div>
+      <div class="font-mono text-xs bg-stone-50 border border-stone-200 rounded-lg overflow-auto max-h-64 p-3 space-y-1" id="auditLog"></div>
+      <p class="sans text-xs text-stone-400 mt-2" id="logNote"></p>
+    </div>
+  </div>
+</section>
+
+<!-- Business Analysis -->
+<section class="max-w-3xl mx-auto px-6 pb-14">
+  <h2 class="text-2xl font-bold text-stone-900 mb-6">비즈니스 분석</h2>
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-white border border-stone-200 rounded-xl p-5">
+      <div class="sans text-xs font-semibold text-violet-500 uppercase tracking-wider mb-2">Wedge Pitch</div>
+      <p class="text-sm text-stone-700 leading-relaxed">엔터프라이즈 보안·컴플라이언스 팀의 'AI 에이전트 무통제 접근' 리스크를 인간 직원 수준의 RBAC·감사·승인 워크플로우 SaaS로 해결합니다.</p>
+    </div>
+    <div class="bg-white border border-stone-200 rounded-xl p-5">
+      <div class="sans text-xs font-semibold text-pink-500 uppercase tracking-wider mb-2">Target Customer</div>
+      <p class="text-sm text-stone-700 leading-relaxed">Fortune 500 및 금융·헬스케어·제조 규제 산업의 CISO·IT거버넌스 팀장. SOC2·ISO27001·HIPAA 감사 대응 중 AI 에이전트 접근 로그가 전무해 곤란한 페르소나.</p>
+    </div>
+    <div class="bg-white border border-stone-200 rounded-xl p-5">
+      <div class="sans text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2">Competitors</div>
+      <div class="flex flex-wrap gap-2 mt-1">
+        <span class="sans text-xs px-2.5 py-1 border border-stone-200 rounded-full text-stone-600">SailPoint</span>
+        <span class="sans text-xs px-2.5 py-1 border border-stone-200 rounded-full text-stone-600">CyberArk</span>
+        <span class="sans text-xs px-2.5 py-1 border border-stone-200 rounded-full text-stone-600">Okta</span>
+      </div>
+      <p class="text-xs text-stone-500 mt-2 leading-relaxed">기존 IGA 솔루션들은 인간 신원 중심 설계 — AI 에이전트 신원 관리는 사각지대.</p>
+    </div>
+    <div class="bg-white border border-stone-200 rounded-xl p-5">
+      <div class="sans text-xs font-semibold text-violet-500 uppercase tracking-wider mb-2">Unicorn Scenario</div>
+      <p class="text-sm text-stone-700 leading-relaxed">2025–2027년 에이전트 폭증기에 'AI Identity Governance' 카테고리 선점. 에이전트 1개당 $50/월 과금 → 5년 ARR $200M → $1.5B Series C 또는 전략적 인수.</p>
+      <div class="sans text-xs mt-2 text-stone-400">TAM: <span class="font-semibold text-stone-600">$18B</span> · Biz Score: <span class="font-semibold text-violet-600">8/10</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="border-t border-stone-200 bg-white">
+  <div class="max-w-3xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+    <p class="sans text-sm text-stone-500">Built with <a href="https://flux.ai.kr" target="_blank" class="text-violet-600 font-medium hover:underline">Flux Agent</a></p>
+    <a href="https://www.forbes.com/councils/forbestechcouncil/2026/06/11/ai-agents-are-becoming-employees-so-why-arent-we-governing-them-like-one/" target="_blank" rel="noopener" class="sans text-sm text-stone-400 hover:text-stone-700 underline underline-offset-2">원문 논문 보기 →</a>
+  </div>
+</footer>
+
+<script>
+  const RISKS = [
+    { key: 'data', label: '데이터 유출 리스크', permFactors: ['crm','hr','finance'], govFactors: ['rbac','monitor'] },
+    { key: 'compliance', label: '규정 위반 리스크', permFactors: ['finance','hr'], govFactors: ['audit','approval'] },
+    { key: 'audit', label: '감사 실패 리스크', permFactors: ['infra','code','finance'], govFactors: ['audit'] },
+    { key: 'privilege', label: '과도한 권한 리스크', permFactors: ['infra','code','email'], govFactors: ['rbac','approval'] },
+  ];
+
+  const COLORS = { high: 'bg-red-400', mid: 'bg-amber-400', low: 'bg-emerald-400' };
+
+  function getPerms() {
+    return [...document.querySelectorAll('.perm-cb:checked')].map(c => c.value);
+  }
+  function getGovs() {
+    const m = { 'gov-rbac':'rbac','gov-audit':'audit','gov-approval':'approval','gov-monitor':'monitor' };
+    return Object.entries(m).filter(([id]) => document.getElementById(id).checked).map(([,v]) => v);
+  }
+
+  function calcRisk(risk, perms, govs) {
+    let base = risk.permFactors.filter(p => perms.includes(p)).length / risk.permFactors.length;
+    let reduction = risk.govFactors.filter(g => govs.includes(g)).length / risk.govFactors.length;
+    return Math.max(5, Math.round(base * 100 * (1 - reduction * 0.7)));
+  }
+
+  function showTab(name) {
+    ['setup','risk','log'].forEach(t => {
+      document.getElementById('panel-'+t).classList.toggle('hidden', t !== name);
+      const btn = document.getElementById('tab-'+t);
+      if (btn) {
+        btn.classList.toggle('text-violet-600', t === name);
+        btn.classList.toggle('border-b-2', t === name);
+        btn.classList.toggle('border-violet-500', t === name);
+        btn.classList.toggle('-mb-px', t === name);
+        btn.classList.toggle('text-stone-400', t !== name);
+      }
+    });
+  }
+
+  function analyze() {
+    const perms = getPerms();
+    const govs = getGovs();
+    const bars = document.getElementById('riskBars');
+    bars.innerHTML = '';
+    let total = 0;
+    RISKS.forEach(r => {
+      const score = calcRisk(r, perms, govs);
+      total += score;
+      const color = score >= 70 ? COLORS.high : score >= 40 ? COLORS.mid : COLORS.low;
+      const label = score >= 70 ? '높음' : score >= 40 ? '중간' : '낮음';
+      bars.innerHTML += `<div class="fade-in">
+        <div class="flex justify-between items-center mb-1">
+          <span class="sans text-xs font-medium text-stone-700">${r.label}</span>
+          <span class="sans text-xs font-semibold text-stone-500">${score}% <span class="text-stone-400">(${label})</span></span>
+        </div>
+        <div class="w-full bg-stone-100 rounded-full h-2">
+          <div class="risk-bar h-2 rounded-full ${color}" style="width:${score}%"></div>
+        </div>
+      </div>`;
+    });
+    const avg = Math.round(total / RISKS.length);
+    const summEl = document.getElementById('riskSummary');
+    const govCount = govs.length;
+    if (govCount === 0 && perms.length >= 4) {
+      summEl.className = 'mt-5 p-4 rounded-lg border border-red-200 bg-red-50';
+      summEl.innerHTML = `<p class="sans text-sm font-semibold text-red-700 mb-1">⚠️ 거버넌스 사각지대 — 즉각 조치 필요</p><p class="text-sm text-red-600 leading-relaxed">광범위한 접근 권한에 거버넌스가 전무합니다. 이 에이전트는 감사에서 즉각 지적될 것입니다. RBAC과 감사 로그를 최우선 적용하세요.</p>`;
+    } else if (avg >= 55) {
+      summEl.className = 'mt-5 p-4 rounded-lg border border-amber-200 bg-amber-50';
+      summEl.innerHTML = `<p class="sans text-sm font-semibold text-amber-700 mb-1">⚡ 부분 거버넌스 — 추가 조치 권고</p><p class="text-sm text-amber-700 leading-relaxed">일부 거버넌스가 적용되어 있으나 여전히 리스크가 높습니다. 남은 통제 항목을 단계적으로 적용하세요.</p>`;
+    } else {
+      summEl.className = 'mt-5 p-4 rounded-lg border border-emerald-200 bg-emerald-50';
+      summEl.innerHTML = `<p class="sans text-sm font-semibold text-emerald-700 mb-1">✓ 양호한 거버넌스 체계</p><p class="text-sm text-emerald-700 leading-relaxed">접근 범위에 비해 적절한 거버넌스가 적용되어 있습니다. 정기 검토와 권한 최소화 원칙을 유지하세요.</p>`;
+    }
+    buildLog(perms, govs);
+    showTab('risk');
+  }
+
+  const LOG_TEMPLATES = [
+    (a, g) => ({ ts: now(), level: g.includes('audit') ? 'INFO' : 'WARN', msg: `[${a}] CRM 고객 데이터 2,847건 조회`, flag: !g.includes('audit') }),
+    (a, g) => ({ ts: now(), level: g.includes('approval') ? 'INFO' : 'CRIT', msg: `[${a}] 재무 트랜잭션 $48,200 승인 요청`, flag: !g.includes('approval') }),
+    (a, g) => ({ ts: now(), level: g.includes('rbac') ? 'INFO' : 'WARN', msg: `[${a}] 인프라 설정 변경 시도`, flag: !g.includes('rbac') }),
+    (a, g) => ({ ts: now(), level: 'INFO', msg: `[${a}] 이메일 432건 발송`, flag: false }),
+    (a, g) => ({ ts: now(), level: g.includes('monitor') ? 'INFO' : 'WARN', msg: `[${a}] 비정상 접근 패턴 감지`, flag: !g.includes('monitor') }),
+  ];
+
+  let logEntries = [];
+  let logPerms = [], logGovs = [], logAgent = '';
+
+  function now() {
+    return new Date().toISOString().replace('T',' ').slice(0,19);
+  }
+
+  function buildLog(perms, govs) {
+    logPerms = perms; logGovs = govs;
+    logAgent = document.getElementById('agentType').options[document.getElementById('agentType').selectedIndex].text.slice(0,6);
+    logEntries = LOG_TEMPLATES.slice(0, 4).map(fn => fn(logAgent, govs));
+    renderLog();
+  }
+
+  function addLogEntry() {
+    if (logEntries.length === 0) { alert('먼저 리스크 분석을 실행하세요.'); return; }
+    const fn = LOG_TEMPLATES[Math.floor(Math.random() * LOG_TEMPLATES.length)];
+    logEntries.unshift(fn(logAgent, logGovs));
+    if (logEntries.length > 12) logEntries.pop();
+    renderLog();
+    showTab('log');
+  }
+
+  function renderLog() {
+    const el = document.getElementById('auditLog');
+    const noteEl = document.getElementById('logNote');
+    el.innerHTML = logEntries.map((e,i) => {
+      const lvlColor = e.level === 'CRIT' ? 'text-red-500' : e.level === 'WARN' ? 'text-amber-500' : 'text-emerald-600';
+      const flagBadge = e.flag ? ' <span class="text-red-400">[미통제 ⚠]</span>' : '';
+      return `<div class="log-row text-stone-600" style="animation-delay:${i*0.04}s"><span class="text-stone-400">${e.ts}</span> <span class="${lvlColor} font-semibold">${e.level.padEnd(4)}</span> ${e.msg}${flagBadge}</div>`;
+    }).join('');
+    const unctrld = logEntries.filter(e => e.flag).length;
+    noteEl.textContent = logGovs.includes('audit') ? `✓ 감사 로그 활성화됨 — 미통제 이벤트 ${unctrld}건 감지` : `⚠ 감사 로그 비활성화 — 이 로그는 기록되지 않고 있습니다.`;
+    noteEl.className = `sans text-xs mt-2 ${logGovs.includes('audit') ? 'text-stone-400' : 'text-red-400'}`;
+  }
+
+  // Init defaults
+  document.addEventListener('DOMContentLoaded', () => {
+    const defaultLog = [
+      { ts: now(), level: 'WARN', msg: '[에이전트] 거버넌스 설정 전 — 분석을 먼저 실행하세요', flag: true }
+    ];
+    logEntries = defaultLog;
+    renderLog();
+  });
+</script>
+</body>
+</html>
