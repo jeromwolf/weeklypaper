@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Progressive Crystallization — Agent to Deterministic Workflow</title>
+  <meta property="og:title" content="Progressive Crystallization: AI 에이전트 비용 70% 절감">
+  <meta property="og:description" content="반복 검증된 에이전트 행동을 결정론적 워크플로우로 자동 전환하는 프로덕션 최적화 방법론">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Noto+Serif+KR:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    body { font-family: 'Source Serif 4', 'Noto Serif KR', Charter, Georgia, serif; background: #fafaf9; color: #1c1917; }
+    h1,h2,h3,h4,h5,h6,button,label,nav,.sans,.tag { font-family: 'Pretendard', 'Inter', system-ui, -apple-system, sans-serif; }
+    .fade-in { animation: fadeIn 0.6s ease both; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+    .stage-bar { transition: width 0.8s cubic-bezier(.4,0,0.2,1); }
+    .card { background:#fff; border:1px solid #e7e5e4; border-radius:8px; }
+    .tag { font-size:0.72rem; letter-spacing:.04em; text-transform:uppercase; font-weight:600; }
+    .accent { color: #7c3aed; }
+    input[type=range] { accent-color:#7c3aed; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<!-- Hero -->
+<header class="max-w-2xl mx-auto px-6 pt-16 pb-10">
+  <div class="flex items-center gap-2 mb-4">
+    <span class="tag px-2 py-0.5 rounded bg-violet-50 text-violet-600">arXiv 2607.07052</span>
+    <span class="tag px-2 py-0.5 rounded bg-stone-100 text-stone-500">AIOps · LLM Cost Optimization</span>
+  </div>
+  <h1 class="text-3xl font-bold leading-snug text-stone-900 mb-3">Progressive Crystallization</h1>
+  <p class="text-lg text-stone-600 mb-2 font-normal leading-relaxed">에이전트 탐색을 결정론적 워크플로우로 전환해 LLM 비용 <strong class="accent">70%+</strong> 절감하는 프로덕션 최적화 방법론</p>
+  <p class="text-sm text-stone-400 sans">Arun Malik &nbsp;·&nbsp; <a href="https://arxiv.org/abs/2607.07052v1" target="_blank" class="accent underline underline-offset-2">arxiv.org/abs/2607.07052</a></p>
+</header>
+
+<!-- Key Insight -->
+<section class="max-w-2xl mx-auto px-6 mb-12">
+  <div class="card p-6">
+    <h2 class="text-base font-bold text-stone-900 mb-3 sans">💡 핵심 인사이트</h2>
+    <p class="text-stone-700 leading-relaxed mb-4">AI 에이전트는 새로운 문제를 탐색할 때는 유용하지만, <em>이미 해결된 문제를 매번 LLM 추론으로 처리</em>하는 것은 낭비다. Progressive Crystallization은 반복 검증된 에이전트 행동을 점진적으로 결정론적 워크플로우로 승격(promote)하고, 성능이 저하되면 자동으로 강등(demote)하는 라이프사이클을 정의한다.</p>
+    <div class="grid grid-cols-3 gap-3 text-center">
+      <div class="bg-violet-50 rounded-lg p-3">
+        <div class="text-2xl font-bold accent sans">0→45%</div>
+        <div class="text-xs text-stone-500 sans mt-1">결정론적 실행 비율 (8개월)</div>
+      </div>
+      <div class="bg-pink-50 rounded-lg p-3">
+        <div class="text-2xl font-bold text-pink-600 sans">70%+</div>
+        <div class="text-xs text-stone-500 sans mt-1">인시던트당 에이전트 비용 감소</div>
+      </div>
+      <div class="bg-stone-50 rounded-lg p-3">
+        <div class="text-2xl font-bold text-stone-700 sans">2×</div>
+        <div class="text-xs text-stone-500 sans mt-1">인시던트 볼륨 증가에도 비용 절감</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Interactive Demo -->
+<section class="max-w-2xl mx-auto px-6 mb-14">
+  <h2 class="text-xl font-bold text-stone-900 mb-1 sans">인터랙티브 시뮬레이터</h2>
+  <p class="text-stone-500 text-sm mb-6 sans">슬라이더를 조정해 Crystallization이 실제로 어떻게 비용과 재현성을 변화시키는지 확인하세요.</p>
+
+  <!-- 3단계 분류 다이어그램 -->
+  <div class="card p-5 mb-6">
+    <h3 class="text-sm font-bold text-stone-700 sans mb-4">3단계 실행 분류 체계 (Execution Taxonomy)</h3>
+    <div class="space-y-3" id="taxonomy">
+      <!-- Stage A -->
+      <div class="flex items-center gap-3">
+        <div class="sans text-xs font-semibold w-24 text-right text-stone-500">Stage A<br><span class="font-normal text-stone-400">Full Agent</span></div>
+        <div class="flex-1 bg-stone-100 rounded-full h-5 overflow-hidden">
+          <div id="barA" class="stage-bar h-full bg-violet-400 rounded-full flex items-center justify-end pr-2">
+            <span id="pctA" class="text-white text-xs font-bold sans">55%</span>
+          </div>
+        </div>
+        <div class="sans text-xs text-stone-400 w-16 text-right">LLM 전체 추론</div>
+      </div>
+      <!-- Stage B -->
+      <div class="flex items-center gap-3">
+        <div class="sans text-xs font-semibold w-24 text-right text-stone-500">Stage B<br><span class="font-normal text-stone-400">Hybrid</span></div>
+        <div class="flex-1 bg-stone-100 rounded-full h-5 overflow-hidden">
+          <div id="barB" class="stage-bar h-full bg-pink-300 rounded-full flex items-center justify-end pr-2">
+            <span id="pctB" class="text-white text-xs font-bold sans">20%</span>
+          </div>
+        </div>
+        <div class="sans text-xs text-stone-400 w-16 text-right">부분 LLM</div>
+      </div>
+      <!-- Stage C -->
+      <div class="flex items-center gap-3">
+        <div class="sans text-xs font-semibold w-24 text-right text-stone-500">Stage C<br><span class="font-normal text-stone-400">Deterministic</span></div>
+        <div class="flex-1 bg-stone-100 rounded-full h-5 overflow-hidden">
+          <div id="barC" class="stage-bar h-full bg-emerald-400 rounded-full flex items-center justify-end pr-2">
+            <span id="pctC" class="text-white text-xs font-bold sans">25%</span>
+          </div>
+        </div>
+        <div class="sans text-xs text-stone-400 w-16 text-right">LLM 없음</div>
+      </div>
+    </div>
+
+    <!-- Promotion flow SVG -->
+    <div class="mt-5 flex items-center justify-center gap-2 select-none">
+      <div class="flex flex-col items-center">
+        <div class="w-20 h-10 rounded-lg bg-violet-100 border border-violet-200 flex items-center justify-center sans text-xs font-semibold text-violet-700">Full Agent</div>
+      </div>
+      <div class="flex flex-col items-center gap-0.5">
+        <span class="sans text-xs text-emerald-600 font-semibold">승격 ▶</span>
+        <div class="w-12 h-0.5 bg-emerald-400"></div>
+        <span class="sans text-xs text-red-400 font-semibold">◀ 강등</span>
+      </div>
+      <div class="flex flex-col items-center">
+        <div class="w-20 h-10 rounded-lg bg-pink-50 border border-pink-200 flex items-center justify-center sans text-xs font-semibold text-pink-600">Hybrid</div>
+      </div>
+      <div class="flex flex-col items-center gap-0.5">
+        <span class="sans text-xs text-emerald-600 font-semibold">승격 ▶</span>
+        <div class="w-12 h-0.5 bg-emerald-400"></div>
+        <span class="sans text-xs text-red-400 font-semibold">◀ 강등</span>
+      </div>
+      <div class="flex flex-col items-center">
+        <div class="w-20 h-10 rounded-lg bg-emerald-50 border border-emerald-300 flex items-center justify-center sans text-xs font-semibold text-emerald-700">Deterministic</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 슬라이더 컨트롤 -->
+  <div class="card p-5 mb-6">
+    <h3 class="text-sm font-bold text-stone-700 sans mb-4">파라미터 조정</h3>
+    <div class="space-y-4">
+      <div>
+        <div class="flex justify-between mb-1">
+          <label class="sans text-xs font-semibold text-stone-600">결정론적 워크플로우 비율</label>
+          <span id="detVal" class="sans text-xs font-bold accent">45%</span>
+        </div>
+        <input type="range" id="detSlider" min="0" max="90" value="45" class="w-full">
+      </div>
+      <div>
+        <div class="flex justify-between mb-1">
+          <label class="sans text-xs font-semibold text-stone-600">월 인시던트 수 (천 건)</label>
+          <span id="incVal" class="sans text-xs font-bold accent">20k</span>
+        </div>
+        <input type="range" id="incSlider" min="5" max="100" value="20" class="w-full">
+      </div>
+      <div>
+        <div class="flex justify-between mb-1">
+          <label class="sans text-xs font-semibold text-stone-600">건당 LLM 에이전트 비용 ($)</label>
+          <span id="costVal" class="sans text-xs font-bold accent">$0.50</span>
+        </div>
+        <input type="range" id="costSlider" min="10" max="200" value="50" class="w-full">
+      </div>
+    </div>
+  </div>
+
+  <!-- 결과 카드 -->
+  <div class="grid grid-cols-2 gap-4 mb-6">
+    <div class="card p-4 text-center">
+      <div class="sans text-xs text-stone-400 mb-1">월 에이전트 비용 (Before)</div>
+      <div id="costBefore" class="sans text-2xl font-bold text-stone-500">$10,000</div>
+    </div>
+    <div class="card p-4 text-center border-violet-200">
+      <div class="sans text-xs text-stone-400 mb-1">월 에이전트 비용 (After)</div>
+      <div id="costAfter" class="sans text-2xl font-bold accent">$5,500</div>
+    </div>
+    <div class="card p-4 text-center col-span-2">
+      <div class="sans text-xs text-stone-400 mb-1">월 절감액 · 절감률</div>
+      <div class="flex items-center justify-center gap-3">
+        <span id="saving" class="sans text-2xl font-bold text-emerald-600">$4,500</span>
+        <span id="savingPct" class="tag px-2 py-0.5 rounded bg-emerald-50 text-emerald-700">45% 절감</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <div class="card p-5">
+    <h3 class="text-sm font-bold text-stone-700 sans mb-3">Crystallization 진행에 따른 비용 변화</h3>
+    <canvas id="costChart" height="180" aria-label="비용 절감 차트"></canvas>
+  </div>
+</section>
+
+<!-- Business Analysis -->
+<section class="max-w-2xl mx-auto px-6 mb-14">
+  <h2 class="text-xl font-bold text-stone-900 mb-6 sans">비즈니스 분석</h2>
+  <div class="space-y-4">
+    <div class="card p-5">
+      <div class="tag text-violet-600 mb-2">Wedge Pitch</div>
+      <p class="text-stone-700 leading-relaxed text-sm">LLM 에이전트를 대규모 운영 중인 엔터프라이즈(AIOps·DevOps·고객지원)의 반복 실행 비용 문제를, 검증된 에이전트 행동을 결정론적 워크플로우로 자동 승격·강등하는 <strong>Progressive Crystallization 플랫폼</strong>으로 풀어 에이전트 비용을 70%+ 절감한다.</p>
+    </div>
+    <div class="card p-5">
+      <div class="tag text-pink-500 mb-2">Target Customer</div>
+      <p class="text-stone-700 text-sm leading-relaxed">월 수만 건 이상의 인시던트·티켓을 AI 에이전트로 처리하는 대형 클라우드·엔터프라이즈 IT팀 (연 LLM 비용 $500K+ 지출, FinOps 담당자 + 플랫폼 엔지니어링팀 공동 의사결정). TAM <strong>$12B</strong>.</p>
+    </div>
+    <div class="card p-5">
+      <div class="tag text-stone-500 mb-2">Competitors</div>
+      <div class="flex flex-wrap gap-2 mt-1">
+        <span class="sans text-xs px-2 py-1 rounded bg-stone-100 text-stone-600">Temporal.io — 워크플로우 오케스트레이션</span>
+        <span class="sans text-xs px-2 py-1 rounded bg-stone-100 text-stone-600">Prefect — 데이터 파이프라인 자동화</span>
+        <span class="sans text-xs px-2 py-1 rounded bg-stone-100 text-stone-600">Fixie.ai — LLM 에이전트 플랫폼</span>
+      </div>
+      <p class="text-stone-500 text-xs mt-2 leading-relaxed">차별점: 경쟁사는 정적 워크플로우·에이전트를 분리하지만, Progressive Crystallization은 <em>에이전트 → 워크플로우 자동 전환 라이프사이클</em>을 제공한다.</p>
+    </div>
+    <div class="card p-5 border-violet-100 bg-violet-50/40">
+      <div class="tag text-violet-600 mb-2">🦄 Unicorn Scenario</div>
+      <p class="text-stone-700 text-sm leading-relaxed">'Agent Cost Optimization Layer' 카테고리를 선점 → Fortune 500 100개사 시트 계약($50K~$500K/년) → 에이전트 오케스트레이션 전체 흡수 → <strong class="accent">5년 내 $1B+ ARR</strong> 달성.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="border-t border-stone-200 py-8 mt-4">
+  <div class="max-w-2xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+    <p class="sans text-sm text-stone-400">Built with <a href="https://flux.ai.kr" target="_blank" class="accent font-semibold underline underline-offset-2">Flux Agent</a> &nbsp;·&nbsp; <a href="https://flux.ai.kr" target="_blank" class="text-stone-400 underline underline-offset-2">flux.ai.kr</a></p>
+    <a href="https://arxiv.org/abs/2607.07052v1" target="_blank" class="sans text-sm accent underline underline-offset-2">논문 원문 →</a>
+  </div>
+</footer>
+
+<script defer>
+(function() {
+  const detSlider = document.getElementById('detSlider');
+  const incSlider = document.getElementById('incSlider');
+  const costSlider = document.getElementById('costSlider');
+
+  let chartInstance = null;
+
+  function fmt(n) {
+    if(n >= 1000000) return '$' + (n/1000000).toFixed(1) + 'M';
+    if(n >= 1000) return '$' + (n/1000).toFixed(1) + 'K';
+    return '$' + n.toFixed(0);
+  }
+
+  function update() {
+    const det = parseInt(detSlider.value); // 0~90
+    const inc = parseInt(incSlider.value) * 1000;
+    const costPer = parseInt(costSlider.value) / 100; // $0.10~$2.00
+
+    document.getElementById('detVal').textContent = det + '%';
+    document.getElementById('incVal').textContent = (inc/1000).toFixed(0) + 'k';
+    document.getElementById('costVal').textContent = '$' + costPer.toFixed(2);
+
+    // Taxonomy bars: A = full agent, B = hybrid, C = deterministic
+    // distribute: det% → C, (det/2)% → B (cap), rest → A
+    const cPct = det;
+    const bPct = Math.min(20, Math.round(det * 0.3));
+    const aPct = 100 - cPct - bPct;
+
+    document.getElementById('barA').style.width = aPct + '%';
+    document.getElementById('barB').style.width = bPct + '%';
+    document.getElementById('barC').style.width = cPct + '%';
+    document.getElementById('pctA').textContent = aPct + '%';
+    document.getElementById('pctB').textContent = bPct + '%';
+    document.getElementById('pctC').textContent = cPct + '%';
+
+    // Cost model
+    // Deterministic costs 5% of agent cost, hybrid costs 40%
+    const before = inc * costPer;
+    const hybridFrac = bPct / 100;
+    const detFrac = cPct / 100;
+    const agentFrac = aPct / 100;
+    const after = inc * costPer * (agentFrac + hybridFrac * 0.40 + detFrac * 0.05);
+    const saved = before - after;
+    const savedPct = before > 0 ? Math.round(saved / before * 100) : 0;
+
+    document.getElementById('costBefore').textContent = fmt(before);
+    document.getElementById('costAfter').textContent = fmt(after);
+    document.getElementById('saving').textContent = fmt(saved);
+    document.getElementById('savingPct').textContent = savedPct + '% 절감';
+
+    updateChart(det, inc, costPer);
+  }
+
+  function updateChart(det, inc, costPer) {
+    const labels = [];
+    const beforeData = [];
+    const afterData = [];
+
+    for(let m = 0; m <= 8; m++) {
+      labels.push(m + '개월');
+      const incM = inc * (1 + m * 0.1); // incident doubles over 10 months
+      const detM = det * (m / 8);
+      const bPctM = Math.min(20, Math.round(detM * 0.3));
+      const aPctM = (100 - detM - bPctM) / 100;
+      const hyM = bPctM / 100;
+      const deM = detM / 100;
+      beforeData.push(Math.round(incM * costPer / 1000));
+      afterData.push(Math.round(incM * costPer * (aPctM + hyM * 0.40 + deM * 0.05) / 1000));
+    }
+
+    if(chartInstance) {
+      chartInstance.data.labels = labels;
+      chartInstance.data.datasets[0].data = beforeData;
+      chartInstance.data.datasets[1].data = afterData;
+      chartInstance.update('none');
+      return;
+    }
+
+    const ctx = document.getElementById('costChart').getContext('2d');
+    chartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: '결정론화 전 비용 ($K/월)',
+            data: beforeData,
+            borderColor: '#a8a29e',
+            backgroundColor: 'rgba(168,162,158,0.08)',
+            borderWidth: 1.5,
+            tension: 0.35,
+            fill: true,
+            pointRadius: 3,
+          },
+          {
+            label: 'Progressive Crystallization 후 ($K/월)',
+            data: afterData,
+            borderColor: '#7c3aed',
+            backgroundColor: 'rgba(124,58,237,0.07)',
+            borderWidth: 2,
+            tension: 0.35,
+            fill: true,
+            pointRadius: 3,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            labels: {
+              font: { family: 'Pretendard, Inter, sans-serif', size: 11 },
+              color: '#57534e'
+            }
+          },
+          tooltip: {
+            bodyFont: { family: 'Pretendard, Inter, sans-serif' },
+            titleFont: { family: 'Pretendard, Inter, sans-serif' },
+          }
+        },
+        scales: {
+          y: {
+            ticks: { font: { family: 'Pretendard, Inter, sans-serif', size: 10 }, color: '#78716c',
+              callback: v => '$' + v + 'K' },
+            grid: { color: '#f5f5f4' }
+          },
+          x: {
+            ticks: { font: { family: 'Pretendard, Inter, sans-serif', size: 10 }, color: '#78716c' },
+            grid: { display: false }
+          }
+        }
+      }
+    });
+  }
+
+  detSlider.addEventListener('input', update);
+  incSlider.addEventListener('input', update);
+  costSlider.addEventListener('input', update);
+  update();
+})();
+</script>
+</body>
+</html>
