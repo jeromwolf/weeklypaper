@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NVIDIA OO Agents — Python 객체 지향 에이전트 데모</title>
+<meta property="og:title" content="NVIDIA OO Agents: Native Python Object-Oriented Agents">
+<meta property="og:description" content="에이전트를 Python 객체로 추상화하여 프롬프트·도구·콜백을 통합하는 구조적 접근">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Noto+Serif+KR:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: 'Source Serif 4','Noto Serif KR',Charter,Georgia,serif; background:#fafaf9; color:#292524; }
+  h1,h2,h3,h4,h5,h6,button,label,nav,.sans,.tag { font-family:'Pretendard','Inter',system-ui,-apple-system,sans-serif; }
+  .code-block { font-family:'JetBrains Mono','Fira Code','Courier New',monospace; font-size:.82rem; line-height:1.7; }
+  .keyword { color:#7c3aed; }
+  .string  { color:#059669; }
+  .comment { color:#78716c; }
+  .func    { color:#2563eb; }
+  .cls     { color:#d97706; }
+  .ellipsis{ color:#db2777; font-weight:700; }
+  .fade-in { animation:fadeIn .5s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+  .tab-active { border-bottom:2px solid #7c3aed; color:#7c3aed; }
+  .tab-inactive { border-bottom:2px solid transparent; color:#78716c; }
+  pre { overflow-x:auto; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- Hero -->
+<header class="border-b border-stone-200 bg-white">
+  <div class="max-w-3xl mx-auto px-4 py-12">
+    <div class="flex flex-wrap gap-2 mb-4">
+      <span class="tag text-xs bg-violet-50 text-violet-700 border border-violet-200 rounded px-2 py-0.5">NVIDIA Research</span>
+      <span class="tag text-xs bg-stone-100 text-stone-600 border border-stone-200 rounded px-2 py-0.5">arXiv 2607.20709</span>
+      <span class="tag text-xs bg-pink-50 text-pink-600 border border-pink-200 rounded px-2 py-0.5">주간 최고점 23/30</span>
+    </div>
+    <h1 class="text-3xl font-bold leading-tight mb-3">NVIDIA OO Agents</h1>
+    <p class="text-lg text-stone-500 mb-4">Native Python Object-Oriented Agents</p>
+    <p class="text-base text-stone-700 mb-5 leading-relaxed">
+      에이전트를 Python 객체로 추상화하여 — 메서드는 액션, 필드는 상태, 도큐스트링은 프롬프트, 타입 주석은 계약 — 분산된 에이전트 개발을 하나의 익숙한 인터페이스로 통합합니다.
+    </p>
+    <div class="flex flex-wrap gap-3 text-sm sans">
+      <a href="https://arxiv.org/abs/2607.20709v1" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-violet-600 hover:text-violet-800 border border-violet-200 rounded px-3 py-1.5 bg-white hover:bg-violet-50 transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+        논문 원문
+      </a>
+      <span class="text-stone-400 text-xs self-center">Furgale et al., NVIDIA Labs 2025</span>
+    </div>
+  </div>
+</header>
+
+<!-- Key Insight -->
+<section class="max-w-3xl mx-auto px-4 py-10">
+  <h2 class="text-xl font-bold mb-5">핵심 인사이트</h2>
+  <div class="grid sm:grid-cols-3 gap-4">
+    <div class="bg-white border border-stone-200 rounded-lg p-5">
+      <div class="text-2xl mb-2">🧩</div>
+      <h3 class="font-semibold mb-1 text-sm">통합된 인터페이스</h3>
+      <p class="text-stone-600 text-sm leading-relaxed">프롬프트·도구·콜백·그래프가 하나의 Python 클래스로 수렴. 개발자와 에이전트가 동일한 인터페이스를 사용.</p>
+    </div>
+    <div class="bg-white border border-stone-200 rounded-lg p-5">
+      <div class="text-2xl mb-2">✏️</div>
+      <h3 class="font-semibold mb-1 text-sm"><code class="text-pink-600">...</code> 런타임 완성</h3>
+      <p class="text-stone-600 text-sm leading-relaxed">메서드 본체가 <code class="text-pink-600">...</code>이면 LLM이 런타임에 완성. 일반 본체는 결정론적 Python 그대로.</p>
+    </div>
+    <div class="bg-white border border-stone-200 rounded-lg p-5">
+      <div class="text-2xl mb-2">🔬</div>
+      <h3 class="font-semibold mb-1 text-sm">테스트·추적·리팩토링</h3>
+      <p class="text-stone-600 text-sm leading-relaxed">일반 소프트웨어처럼 에이전트를 테스트하고 추적할 수 있어 신뢰성 있는 프로덕션 배포가 가능.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Interactive Demo -->
+<section class="max-w-3xl mx-auto px-4 pb-10">
+  <h2 class="text-xl font-bold mb-2">인터랙티브 데모</h2>
+  <p class="text-stone-600 text-sm mb-6 leading-relaxed">NOOA 프레임워크의 핵심 컨셉을 직접 탐색해보세요. 탭을 선택하면 각 아이디어가 코드로 어떻게 표현되는지, 그리고 시뮬레이션 결과를 확인할 수 있습니다.</p>
+
+  <!-- Tabs -->
+  <div class="flex gap-0 border-b border-stone-200 mb-6 overflow-x-auto" role="tablist">
+    <button onclick="setTab(0)" id="tab0" class="tab-active sans text-sm font-medium px-4 py-2.5 whitespace-nowrap transition-colors">에이전트 구조</button>
+    <button onclick="setTab(1)" id="tab1" class="tab-inactive sans text-sm font-medium px-4 py-2.5 whitespace-nowrap transition-colors">메서드 시뮬레이터</button>
+    <button onclick="setTab(2)" id="tab2" class="tab-inactive sans text-sm font-medium px-4 py-2.5 whitespace-nowrap transition-colors">vs 기존 방식</button>
+    <button onclick="setTab(3)" id="tab3" class="tab-inactive sans text-sm font-medium px-4 py-2.5 whitespace-nowrap transition-colors">6가지 핵심 아이디어</button>
+  </div>
+
+  <!-- Tab 0: 에이전트 구조 -->
+  <div id="panel0" class="fade-in">
+    <p class="text-stone-700 text-sm mb-4 leading-relaxed">NOOA에서 에이전트는 평범한 Python 클래스입니다. 아래 인터랙티브 다이어그램에서 각 요소를 클릭해 역할을 확인하세요.</p>
+    <div class="bg-white border border-stone-200 rounded-lg p-5 mb-4">
+      <pre class="code-block"><span class="keyword">class</span> <span class="cls">ResearchAgent</span>:
+    <span class="comment">"""당신은 학술 논문을 분석하는 연구 보조 에이전트입니다.
+    사용자의 요청을 이해하고 체계적으로 분석 결과를 제공하세요."""</span>
+
+    <span class="comment"># 필드 = 에이전트 상태</span>
+    topic: <span class="cls">str</span>
+    findings: <span class="cls">list</span>[<span class="cls">str</span>] = []
+    confidence: <span class="cls">float</span> = <span id="conf-val" class="text-amber-600">0.85</span>
+
+    <span class="keyword">def</span> <span class="func">search_papers</span>(self, query: <span class="cls">str</span>) -> <span class="cls">list</span>[<span class="cls">str</span>]:
+        <span class="string">"""arXiv에서 관련 논문을 검색합니다."""</span>
+        <span class="ellipsis">...</span>  <span class="comment"># ← LLM이 런타임에 완성</span>
+
+    <span class="keyword">def</span> <span class="func">summarize</span>(self, papers: <span class="cls">list</span>[<span class="cls">str</span>]) -> <span class="cls">str</span>:
+        <span class="string">"""검색된 논문들의 핵심을 요약합니다."""</span>
+        <span class="ellipsis">...</span>  <span class="comment"># ← LLM이 런타임에 완성</span>
+
+    <span class="keyword">def</span> <span class="func">validate_source</span>(self, url: <span class="cls">str</span>) -> <span class="cls">bool</span>:
+        <span class="comment"># 일반 Python — 결정론적 실행</span>
+        <span class="keyword">return</span> url.startswith(<span class="string">"https://arxiv.org"</span>)</pre>
+    </div>
+    <div class="grid sm:grid-cols-4 gap-3">
+      <button onclick="highlight('doc')" class="text-left bg-stone-50 hover:bg-violet-50 border border-stone-200 hover:border-violet-300 rounded p-3 transition-colors">
+        <div class="sans text-xs font-semibold text-violet-700 mb-1">📝 도큐스트링</div>
+        <p class="text-xs text-stone-600">시스템 프롬프트로 자동 변환</p>
+      </button>
+      <button onclick="highlight('field')" class="text-left bg-stone-50 hover:bg-violet-50 border border-stone-200 hover:border-violet-300 rounded p-3 transition-colors">
+        <div class="sans text-xs font-semibold text-violet-700 mb-1">📦 필드</div>
+        <p class="text-xs text-stone-600">에이전트 상태를 명시적으로 관리</p>
+      </button>
+      <button onclick="highlight('ellipsis')" class="text-left bg-stone-50 hover:bg-violet-50 border border-stone-200 hover:border-violet-300 rounded p-3 transition-colors">
+        <div class="sans text-xs font-semibold text-pink-600 mb-1">✨ ... 메서드</div>
+        <p class="text-xs text-stone-600">LLM이 런타임에 구현 완성</p>
+      </button>
+      <button onclick="highlight('normal')" class="text-left bg-stone-50 hover:bg-violet-50 border border-stone-200 hover:border-violet-300 rounded p-3 transition-colors">
+        <div class="sans text-xs font-semibold text-emerald-700 mb-1">⚙️ 일반 메서드</div>
+        <p class="text-xs text-stone-600">결정론적 Python 코드 그대로</p>
+      </button>
+    </div>
+    <div id="highlight-box" class="mt-4 hidden bg-violet-50 border border-violet-200 rounded p-4 text-sm text-violet-900 fade-in"></div>
+  </div>
+
+  <!-- Tab 1: 메서드 시뮬레이터 -->
+  <div id="panel1" class="hidden fade-in">
+    <p class="text-stone-700 text-sm mb-4 leading-relaxed"><code class="text-pink-600">...</code> 메서드와 일반 메서드의 실행 차이를 시뮬레이션합니다. 태스크를 선택하고 실행해 보세요.</p>
+    <div class="bg-white border border-stone-200 rounded-lg p-5 mb-4">
+      <div class="mb-4">
+        <label class="sans text-xs font-semibold text-stone-600 block mb-2">에이전트 태스크 선택</label>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="selectTask(0)" id="task0" class="sans text-xs border rounded px-3 py-1.5 bg-violet-600 text-white border-violet-600">논문 요약</button>
+          <button onclick="selectTask(1)" id="task1" class="sans text-xs border rounded px-3 py-1.5 bg-white text-stone-600 border-stone-300">코드 리뷰</button>
+          <button onclick="selectTask(2)" id="task2" class="sans text-xs border rounded px-3 py-1.5 bg-white text-stone-600 border-stone-300">데이터 분석</button>
+        </div>
+      </div>
+      <div class="mb-4">
+        <label class="sans text-xs font-semibold text-stone-600 block mb-1">입력</label>
+        <input id="user-input" type="text" class="w-full border border-stone-200 rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-violet-400" placeholder="NVIDIA OO Agents 논문 핵심 내용을 요약해줘">
+      </div>
+      <button onclick="runSimulation()" class="sans text-sm bg-violet-600 hover:bg-violet-700 text-white rounded px-4 py-2 transition-colors font-medium">▶ 실행 시뮬레이션</button>
+    </div>
+    <div id="sim-output" class="hidden">
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div class="bg-white border border-stone-200 rounded-lg p-4">
+          <div class="sans text-xs font-semibold text-stone-500 mb-2 flex items-center gap-1.5"><span class="w-2 h-2 bg-pink-400 rounded-full inline-block"></span>LLM 드리븐 실행 (<code>...</code>)</div>
+          <div id="llm-trace" class="text-xs space-y-1.5 code-block"></div>
+        </div>
+        <div class="bg-white border border-stone-200 rounded-lg p-4">
+          <div class="sans text-xs font-semibold text-stone-500 mb-2 flex items-center gap-1.5"><span class="w-2 h-2 bg-emerald-400 rounded-full inline-block"></span>결정론적 실행 (일반 메서드)</div>
+          <div id="det-trace" class="text-xs space-y-1.5 code-block"></div>
+        </div>
+      </div>
+      <div id="final-result" class="mt-4 bg-stone-50 border border-stone-200 rounded-lg p-4 text-sm"></div>
+    </div>
+  </div>
+
+  <!-- Tab 2: vs 기존 방식 -->
+  <div id="panel2" class="hidden fade-in">
+    <p class="text-stone-700 text-sm mb-5 leading-relaxed">기존 에이전트 개발 방식과 NOOA를 비교합니다. 슬라이더로 복잡도 수준을 조절하면 각 방식의 코드량 차이를 확인할 수 있습니다.</p>
+    <div class="bg-white border border-stone-200 rounded-lg p-5 mb-4">
+      <label class="sans text-xs font-semibold text-stone-600 block mb-2">에이전트 복잡도: <span id="complexity-label">중간 (3개 도구)</span></label>
+      <input type="range" min="1" max="5" value="3" id="complexity-slider" oninput="updateComplexity(this.value)" class="w-full accent-violet-600 mb-4">
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <div class="sans text-xs font-semibold text-stone-500 mb-2">기존 방식 (LangChain 스타일)</div>
+          <div class="bg-stone-50 rounded p-3">
+            <div id="old-bars" class="space-y-2"></div>
+            <div class="mt-3 text-xs text-stone-500 sans">총 예상 코드: <span id="old-total" class="font-bold text-stone-700"></span> LOC</div>
+          </div>
+        </div>
+        <div>
+          <div class="sans text-xs font-semibold text-stone-500 mb-2">NOOA 방식</div>
+          <div class="bg-stone-50 rounded p-3">
+            <div id="new-bars" class="space-y-2"></div>
+            <div class="mt-3 text-xs text-stone-500 sans">총 예상 코드: <span id="new-total" class="font-bold text-violet-700"></span> LOC</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="reduction-badge" class="text-center sans text-sm font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg py-3"></div>
+  </div>
+
+  <!-- Tab 3: 6가지 핵심 아이디어 -->
+  <div id="panel3" class="hidden fade-in">
+    <p class="text-stone-700 text-sm mb-5 leading-relaxed">NOOA가 최초로 단일 인터페이스에서 결합한 6가지 모델 대면 아이디어입니다.</p>
+    <div class="grid sm:grid-cols-2 gap-4" id="ideas-grid"></div>
+  </div>
+</section>
+
+<!-- Business Analysis -->
+<section class="border-t border-stone-200 bg-white">
+  <div class="max-w-3xl mx-auto px-4 py-10">
+    <h2 class="text-xl font-bold mb-6">비즈니스 분석</h2>
+    <div class="grid sm:grid-cols-2 gap-4 mb-4">
+      <div class="border border-stone-200 rounded-lg p-5">
+        <div class="sans text-xs font-semibold text-stone-400 uppercase tracking-wide mb-2">Wedge Pitch</div>
+        <p class="text-sm leading-relaxed text-stone-700">Python 개발자 및 엔터프라이즈 팀의 AI 에이전트 분산 개발 고통을 객체지향 통합 프레임워크 SaaS로 해결. TAM <span class="font-semibold text-violet-700">$12B</span></p>
+      </div>
+      <div class="border border-stone-200 rounded-lg p-5">
+        <div class="sans text-xs font-semibold text-stone-400 uppercase tracking-wide mb-2">타겟 고객</div>
+        <p class="text-sm leading-relaxed text-stone-700">Python 백엔드를 운영하며 LLM 에이전트를 프로덕션에 통합하려는 시리즈 A–C 스타트업 또는 엔터프라이즈 DevOps/AI 엔지니어링팀 (연 $50K+ 툴링 예산)</p>
+      </div>
+      <div class="border border-stone-200 rounded-lg p-5">
+        <div class="sans text-xs font-semibold text-stone-400 uppercase tracking-wide mb-2">경쟁 구도</div>
+        <div class="flex flex-wrap gap-2 mt-1">
+          <span class="tag text-xs bg-stone-100 text-stone-600 border border-stone-200 rounded px-2 py-0.5">LangChain</span>
+          <span class="tag text-xs bg-stone-100 text-stone-600 border border-stone-200 rounded px-2 py-0.5">Microsoft AutoGen</span>
+          <span class="tag text-xs bg-stone-100 text-stone-600 border border-stone-200 rounded px-2 py-0.5">Crew.ai</span>
+        </div>
+        <p class="text-xs text-stone-500 mt-2">NOOA는 NVIDIA 브랜드 + 타입 안전성 + 표준 Python 패러다임으로 차별화</p>
+      </div>
+      <div class="border border-stone-200 rounded-lg p-5">
+        <div class="sans text-xs font-semibold text-stone-400 uppercase tracking-wide mb-2">유니콘 시나리오</div>
+        <p class="text-sm leading-relaxed text-stone-700">NVIDIA 브랜드 레버리지로 엔터프라이즈 AI 인프라 표준화 → 도메인별(CRM/ERP/DevOps) 에이전트 마켓플레이스 + 관리형 실행 클라우드 → <span class="font-semibold text-violet-700">5년 내 $1B ARR</span></p>
+      </div>
+    </div>
+    <div class="bg-violet-50 border border-violet-200 rounded-lg p-4 flex items-start gap-3">
+      <div class="text-violet-600 text-lg">⚡</div>
+      <div>
+        <div class="sans text-xs font-semibold text-violet-700 mb-1">Flux 시너지</div>
+        <p class="text-sm text-violet-900 leading-relaxed">Flux Agent 기반 워크플로우와 NOOA의 Python 객체 에이전트 패러다임은 자연스럽게 결합 가능. 에이전트 마켓플레이스 레이어로 확장 시 Flux 플랫폼의 배포·모니터링·비용 최적화 인프라를 즉시 활용 가능.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="border-t border-stone-200 bg-stone-50">
+  <div class="max-w-3xl mx-auto px-4 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-stone-500">
+    <div class="sans">Built with <a href="https://flux.ai.kr" class="text-violet-600 hover:underline font-medium">Flux Agent</a> · <a href="https://flux.ai.kr" class="text-stone-400 hover:text-stone-600">flux.ai.kr</a></div>
+    <a href="https://arxiv.org/abs/2607.20709v1" target="_blank" rel="noopener" class="sans text-xs text-stone-400 hover:text-violet-600 transition-colors">논문 원문 arXiv:2607.20709 →</a>
+  </div>
+</footer>
+
+<script defer>
+const panels = [0,1,2,3];
+function setTab(idx) {
+  panels.forEach(i => {
+    document.getElementById('panel'+i).classList.add('hidden');
+    document.getElementById('panel'+i).classList.remove('fade-in');
+    document.getElementById('tab'+i).className = 'tab-inactive sans text-sm font-medium px-4 py-2.5 whitespace-nowrap transition-colors';
+  });
+  const p = document.getElementById('panel'+idx);
+  p.classList.remove('hidden');
+  setTimeout(()=>p.classList.add('fade-in'),10);
+  document.getElementById('tab'+idx).className = 'tab-active sans text-sm font-medium px-4 py-2.5 whitespace-nowrap transition-colors';
+}
+
+// Tab 0: highlight
+const highlights = {
+  doc: { title:'📝 도큐스트링 → 시스템 프롬프트', text:'클래스 도큐스트링은 에이전트의 페르소나와 지침으로 자동 변환됩니다. 별도의 프롬프트 템플릿 파일 없이 코드 안에 프롬프트가 내재됩니다.' },
+  field: { title:'📦 필드 → 에이전트 상태', text:'타입 주석이 달린 필드는 에이전트의 명시적 상태입니다. LLM이 상태를 직접 읽고 쓸 수 있어 pass-by-reference 패턴을 지원합니다.' },
+  ellipsis: { title:'✨ ... 메서드 → LLM 런타임 완성', text:'메서드 본체가 ... (Ellipsis)이면 에이전트 루프가 LLM을 호출해 구현을 완성합니다. 타입 시그니처와 도큐스트링이 LLM에 대한 계약 역할을 합니다.' },
+  normal: { title:'⚙️ 일반 메서드 → 결정론적 Python', text:'일반 본체를 가진 메서드는 그대로 Python으로 실행됩니다. LLM 의존 없이 신뢰할 수 있는 검증·변환 로직을 섞을 수 있습니다.' }
+};
+function highlight(key) {
+  const box = document.getElementById('highlight-box');
+  const h = highlights[key];
+  box.innerHTML = `<div class="sans text-sm font-semibold mb-1">${h.title}</div><p class="text-sm leading-relaxed">${h.text}</p>`;
+  box.classList.remove('hidden');
+  box.classList.remove('fade-in');
+  setTimeout(()=>box.classList.add('fade-in'),10);
+}
+
+// Tab 1: simulation
+const tasks = [
+  { label:'논문 요약', placeholder:'NVIDIA OO Agents 논문 핵심 내용을 요약해줘', llm:['→ summarize() 메서드 선택','→ LLM에 docstring + 타입 시그니처 전달','→ LLM 응답 파싱 및 타입 검증','→ str 반환값 검증 통과'], det:['→ validate_source() 직접 호출','→ URL 패턴 매칭 (결정론적)','→ bool 반환'], result:'<span class="sans font-semibold">요약 결과:</span> NVIDIA OO Agents는 Python 클래스를 에이전트로 사용하며, <code class="text-pink-600">...</code> 메서드를 LLM이 런타임에 완성합니다. 6가지 핵심 아이디어(typed I/O, pass-by-reference, code-as-action 등)를 단일 인터페이스에 통합한 최초 프레임워크입니다.' },
+  { label:'코드 리뷰', placeholder:'이 Python 함수에서 버그를 찾아줘', llm:['→ review_code() 메서드 선택','→ 코드 컨텍스트 렌더링','→ LLM 분석 요청 (typed input)','→ list[str] 타입 결과 검증'], det:['→ syntax_check() 직접 실행','→ AST 파싱 (결정론적)','→ 에러 목록 반환'], result:'<span class="sans font-semibold">리뷰 결과:</span> 타입 주석 누락(line 3), 예외 처리 없는 파일 접근(line 7), 미사용 변수 <code>tmp</code>(line 12) 발견. 결정론적 lint 후 LLM 의미론적 분석이 순서대로 실행됩니다.' },
+  { label:'데이터 분석', placeholder:'판매 데이터의 이상치를 탐지해줘', llm:['→ detect_anomaly() 선택','→ DataFrame 객체 pass-by-reference','→ LLM 통계 분석 수행','→ list[float] 이상치 인덱스 반환'], det:['→ normalize_data() 직접 실행','→ z-score 계산 (결정론적)','→ 정규화 완료'], result:'<span class="sans font-semibold">분석 결과:</span> 총 1,240개 레코드 중 23개 이상치 탐지. 결정론적 정규화 후 LLM이 맥락적 판단을 수행하는 하이브리드 파이프라인이 실행됩니다.' }
+];
+let selectedTask = 0;
+function selectTask(i) {
+  selectedTask = i;
+  tasks.forEach((_,j)=>{
+    const el = document.getElementById('task'+j);
+    el.className = j===i ? 'sans text-xs border rounded px-3 py-1.5 bg-violet-600 text-white border-violet-600' : 'sans text-xs border rounded px-3 py-1.5 bg-white text-stone-600 border-stone-300';
+  });
+  document.getElementById('user-input').placeholder = tasks[i].placeholder;
+  document.getElementById('sim-output').classList.add('hidden');
+}
+function runSimulation() {
+  const out = document.getElementById('sim-output');
+  out.classList.remove('hidden');
+  const t = tasks[selectedTask];
+  const llmEl = document.getElementById('llm-trace');
+  const detEl = document.getElementById('det-trace');
+  const resEl = document.getElementById('final-result');
+  llmEl.innerHTML = ''; detEl.innerHTML = ''; resEl.innerHTML = '';
+  let i=0;
+  const colors = ['text-stone-400','text-violet-600','text-pink-600','text-emerald-600'];
+  function addLLM() {
+    if(i>=t.llm.length){addDet(0);return;}
+    const d = document.createElement('div');
+    d.className = (colors[i]||'text-stone-600')+' fade-in';
+    d.textContent = t.llm[i]; llmEl.appendChild(d); i++;
+    setTimeout(addLLM, 350);
+  }
+  function addDet(j) {
+    if(j>=t.det.length){showResult();return;}
+    const d = document.createElement('div');
+    d.className = (colors[j]||'text-stone-600')+' fade-in';
+    d.textContent = t.det[j]; detEl.appendChild(d);
+    setTimeout(()=>addDet(j+1), 300);
+  }
+  function showResult() {
+    resEl.innerHTML = `<div class="sans text-xs font-semibold text-stone-400 mb-2">최종 출력</div><p class="text-sm leading-relaxed">${t.result}</p>`;
+    resEl.classList.add('fade-in');
+  }
+  addLLM();
+}
+
+// Tab 2: complexity
+const oldParts = ['프롬프트 템플릿','도구 스키마 정의','콜백 코드','워크플로우 그래프','테스트 픽스처'];
+const newParts = ['Python 클래스','타입 주석'];
+function updateComplexity(v) {
+  const labels = ['','최소 (1개 도구)','간단 (2개 도구)','중간 (3개 도구)','복잡 (5개 도구)','매우 복잡 (8개 도구)'];
+  document.getElementById('complexity-label').textContent = labels[v];
+  const mult = [0,1,1.8,3,5,8][v];
+  const oldBase = [30,25,40,20,15];
+  const newBase = [15,8];
+  const ob = document.getElementById('old-bars'); ob.innerHTML='';
+  const nb = document.getElementById('new-bars'); nb.innerHTML='';
+  let ot=0, nt=0;
+  oldParts.forEach((p,i)=>{
+    const val = Math.round(oldBase[i]*mult);
+    ot+=val;
+    ob.innerHTML+=`<div class="flex items-center gap-2 text-xs"><span class="w-24 text-stone-500 truncate">${p}</span><div class="flex-1 bg-stone-200 rounded h-2"><div class="bg-stone-500 h-2 rounded" style="width:${Math.min(val/8,100)}%"></div></div><span class="text-stone-600 w-8 text-right">${val}</span></div>`;
+  });
+  newParts.forEach((p,i)=>{
+    const val = Math.round(newBase[i]*mult);
+    nt+=val;
+    nb.innerHTML+=`<div class="flex items-center gap-2 text-xs"><span class="w-24 text-stone-500 truncate">${p}</span><div class="flex-1 bg-stone-200 rounded h-2"><div class="bg-violet-500 h-2 rounded" style="width:${Math.min(val/8,100)}%"></div></div><span class="text-violet-600 w-8 text-right">${val}</span></div>`;
+  });
+  document.getElementById('old-total').textContent = ot+' LOC';
+  document.getElementById('new-total').textContent = nt+' LOC';
+  const red = Math.round((1-nt/ot)*100);
+  document.getElementById('reduction-badge').textContent = `NOOA로 코드량 약 ${red}% 감소 — 개발 속도 향상 + 유지보수 부담 감소`;
+}
+updateComplexity(3);
+
+// Tab 3: 6 ideas
+const ideas = [
+  { icon:'🏷️', title:'Typed Input/Output', desc:'메서드 시그니처의 타입 주석이 LLM의 입·출력 계약 역할. 자동 검증으로 신뢰성 확보.' },
+  { icon:'🔗', title:'Pass-by-Reference', desc:'살아있는 Python 객체를 직접 참조. 직렬화 없이 에이전트가 실시간 상태에 접근 가능.' },
+  { icon:'💻', title:'Code as Action', desc:'LLM이 생성한 코드 자체가 액션. 자연어 명령보다 정밀하고 검증 가능한 실행.' },
+  { icon:'🔧', title:'Programmable Loop', desc:'에이전트 루프를 코드로 제어. 재시도 전략·중단 조건·파이프라인을 프로그래밍 방식으로 설계.' },
+  { icon:'📊', title:'Explicit Object State', desc:'에이전트 상태가 필드로 명시. LLM이 상태를 직접 읽고 쓸 수 있어 컨텍스트 관리 간소화.' },
+  { icon:'📡', title:'Harness API', desc:'컨텍스트·이벤트용 모델 호출 가능 API. 에이전트가 환경과 구조적으로 상호작용.' }
+];
+const grid = document.getElementById('ideas-grid');
+ideas.forEach(idea => {
+  grid.innerHTML += `<div class="bg-white border border-stone-200 rounded-lg p-4 hover:border-violet-300 transition-colors">
+    <div class="text-2xl mb-2">${idea.icon}</div>
+    <h3 class="sans font-semibold text-sm mb-1">${idea.title}</h3>
+    <p class="text-stone-600 text-sm leading-relaxed">${idea.desc}</p>
+  </div>`;
+});
+</script>
+</body>
+</html>
