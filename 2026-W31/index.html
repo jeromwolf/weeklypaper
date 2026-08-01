@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgentGUI — AI 에이전트 관찰 및 조종 인터페이스</title>
+<meta property="og:title" content="AgentGUI: AI 에이전트 실시간 관찰·조종 플랫폼">
+<meta property="og:description" content="장시간 실행 AI 에이전트를 시각화하고 실시간으로 제어하는 GUI — 핵심 요소 식별 38% 빠르게, 완료율 34pp 향상">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Noto+Serif+KR:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: 'Source Serif 4','Noto Serif KR',Charter,Georgia,serif; background:#fafaf9; color:#292524; }
+  h1,h2,h3,h4,h5,h6,button,label,nav,.sans,.tag { font-family:'Pretendard','Inter',system-ui,-apple-system,sans-serif; }
+  .accent { color:#7c3aed; }
+  .tag { display:inline-block; font-size:0.72rem; font-weight:600; padding:2px 9px; border-radius:999px; border:1px solid #e7e5e4; background:#fff; color:#57534e; letter-spacing:.03em; }
+  .card { background:#fff; border:1px solid #e7e5e4; border-radius:12px; }
+  .step-node { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Pretendard','Inter',sans-serif; font-weight:700; font-size:0.8rem; flex-shrink:0; }
+  .connector { width:2px; min-height:28px; margin:0 auto; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+  .fade-in { animation:fadeIn .4s ease both; }
+  .progress-bar { transition: width 0.6s ease; }
+  .drift-badge { font-family:'Pretendard','Inter',sans-serif; font-size:0.68rem; font-weight:700; padding:1px 7px; border-radius:999px; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- Hero -->
+<section class="max-w-2xl mx-auto px-5 pt-16 pb-10">
+  <div class="flex flex-wrap gap-2 mb-5">
+    <span class="tag">AI Agents</span>
+    <span class="tag">Human Oversight</span>
+    <span class="tag">HCI</span>
+    <span class="tag">arXiv 2607.26300</span>
+  </div>
+  <h1 class="text-3xl md:text-4xl font-bold leading-tight mb-3">AgentGUI</h1>
+  <p class="text-xl md:text-2xl font-semibold text-stone-600 mb-4">장시간 AI 에이전트를 <span class="accent">관찰</span>하고 <span class="accent">조종</span>하는 인터페이스</p>
+  <p class="text-base text-stone-500 mb-5">Xuan Zhao, Jiwoong Sohn, Qinyue Zheng, Michael Moor &mdash; ETH Zürich Medical AI Lab</p>
+  <p class="text-base leading-relaxed text-stone-700 mb-6">AI 에이전트가 복잡한 장기 작업을 수행할 때, 인간 감시는 구조적으로 뒤처진다. AgentGUI는 에이전트 궤적 시각화·수동/자동 조종·다중 프레임워크 통합으로 이 공백을 메운다.</p>
+  <a href="https://arxiv.org/abs/2607.26300v1" target="_blank" rel="noopener" class="sans inline-flex items-center gap-1.5 text-sm font-semibold text-violet-600 border border-violet-200 rounded-full px-4 py-1.5 hover:bg-violet-50 transition-colors">
+    ↗ 논문 원문 보기 (arXiv)
+  </a>
+</section>
+
+<!-- Key Insight -->
+<section class="max-w-2xl mx-auto px-5 pb-10">
+  <h2 class="text-xl font-bold mb-4">핵심 인사이트</h2>
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="card p-5 text-center">
+      <div class="text-3xl font-bold accent mb-1">38%</div>
+      <div class="text-sm text-stone-500 leading-snug">핵심 요소 식별 시간 단축<br><span class="text-xs">(p = 0.023, 통계적 유의)</span></div>
+    </div>
+    <div class="card p-5 text-center">
+      <div class="text-3xl font-bold accent mb-1">+34pp</div>
+      <div class="text-sm text-stone-500 leading-snug">소형 에이전트 작업 완료율<br><span class="text-xs">(0.8B–9B 모델, N=50)</span></div>
+    </div>
+    <div class="card p-5 text-center">
+      <div class="text-3xl font-bold accent mb-1">다중</div>
+      <div class="text-sm text-stone-500 leading-snug">동시 세션 관리<br><span class="text-xs">오픈소스·프론티어 프레임워크 통합</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Interactive Demo -->
+<section class="max-w-2xl mx-auto px-5 pb-14">
+  <h2 class="text-xl font-bold mb-1">인터랙티브 데모</h2>
+  <p class="text-stone-500 text-sm mb-6">AgentGUI의 핵심 기능을 직접 시뮬레이션해보세요. 에이전트를 선택하고, 상태를 확인하고, 수동·자동 조종을 적용하세요.</p>
+
+  <div id="app">
+    <!-- Session Selector -->
+    <div class="card p-4 mb-4">
+      <div class="flex flex-wrap items-center gap-2 mb-3">
+        <span class="sans text-xs font-bold text-stone-400 uppercase tracking-widest">세션 선택</span>
+      </div>
+      <div class="flex flex-wrap gap-2" id="session-tabs"></div>
+    </div>
+
+    <!-- Trajectory Visualizer -->
+    <div class="card p-5 mb-4" id="trajectory-panel">
+      <div class="flex items-center justify-between mb-3">
+        <span class="sans text-xs font-bold text-stone-400 uppercase tracking-widest">에이전트 궤적 시각화</span>
+        <span id="session-status-badge" class="drift-badge"></span>
+      </div>
+      <div id="trajectory-list" class="space-y-0"></div>
+    </div>
+
+    <!-- Progress -->
+    <div class="card p-5 mb-4">
+      <div class="flex items-center justify-between mb-2">
+        <span class="sans text-xs font-bold text-stone-400 uppercase tracking-widest">작업 진행도</span>
+        <span id="progress-label" class="sans text-xs font-semibold text-stone-600"></span>
+      </div>
+      <div class="w-full bg-stone-100 rounded-full h-2.5">
+        <div id="progress-bar" class="progress-bar h-2.5 rounded-full bg-violet-500"></div>
+      </div>
+    </div>
+
+    <!-- Steering Controls -->
+    <div class="card p-5 mb-4">
+      <span class="sans text-xs font-bold text-stone-400 uppercase tracking-widest block mb-3">조종 컨트롤 (Steering)</span>
+      <div class="flex flex-wrap gap-2 mb-3">
+        <button onclick="steer('rollback')" class="sans text-xs font-semibold px-3 py-1.5 rounded-lg border border-stone-200 bg-white hover:bg-stone-50 transition-colors">⟵ 이전 단계로 롤백</button>
+        <button onclick="steer('inject')" class="sans text-xs font-semibold px-3 py-1.5 rounded-lg border border-stone-200 bg-white hover:bg-stone-50 transition-colors">✎ 지시 주입</button>
+        <button onclick="steer('autopilot')" class="sans text-xs font-semibold px-3 py-1.5 rounded-lg border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors">⚡ 자동 드리프트 교정</button>
+        <button onclick="steer('pause')" class="sans text-xs font-semibold px-3 py-1.5 rounded-lg border border-stone-200 bg-white hover:bg-stone-50 transition-colors">⏸ 일시정지</button>
+      </div>
+      <div id="steer-msg" class="text-sm text-stone-500 min-h-[20px]"></div>
+    </div>
+
+    <!-- Manual Inject Input -->
+    <div class="card p-5 mb-2" id="inject-panel" style="display:none">
+      <span class="sans text-xs font-bold text-stone-400 uppercase tracking-widest block mb-2">수동 지시 입력</span>
+      <div class="flex gap-2">
+        <input id="inject-input" type="text" placeholder="예: 검색 범위를 2023년 이후로 한정하라" class="flex-1 border border-stone-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-200" />
+        <button onclick="submitInject()" class="sans font-semibold text-sm bg-violet-600 text-white px-4 py-2 rounded-lg hover:bg-violet-700 transition-colors">전송</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Business Analysis -->
+<section class="max-w-2xl mx-auto px-5 pb-16">
+  <h2 class="text-xl font-bold mb-4">비즈니스 분석</h2>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+    <div class="card p-5">
+      <div class="sans text-xs font-bold text-stone-400 uppercase tracking-widest mb-2">Wedge</div>
+      <p class="text-sm leading-relaxed text-stone-700">엔터프라이즈 AI 에이전트 운영팀의 <strong>블랙박스 문제</strong>를 실시간 궤적 시각화·자동 드리프트 교정 SaaS로 해결한다.</p>
+    </div>
+    <div class="card p-5">
+      <div class="sans text-xs font-bold text-stone-400 uppercase tracking-widest mb-2">타겟 고객</div>
+      <p class="text-sm leading-relaxed text-stone-700">10명 이상 AI/자동화팀을 보유한 Fortune 2000 기업의 <strong>AI Ops 리드</strong>·엔지니어링 매니저. 다수 장시간 에이전트 워크플로우를 동시 관리.</p>
+    </div>
+    <div class="card p-5">
+      <div class="sans text-xs font-bold text-stone-400 uppercase tracking-widest mb-2">경쟁사</div>
+      <ul class="text-sm text-stone-700 space-y-1">
+        <li>· <strong>Langfuse</strong> — LLM 추적·평가</li>
+        <li>· <strong>Datadog LLM Observability</strong></li>
+        <li>· <strong>W&B Weave</strong> — 실험 트래킹</li>
+      </ul>
+    </div>
+    <div class="card p-5">
+      <div class="sans text-xs font-bold text-stone-400 uppercase tracking-widest mb-2">TAM · 유니콘 시나리오</div>
+      <p class="text-sm leading-relaxed text-stone-700">TAM <strong>$120억</strong>. AWS/Azure 번들 통합 또는 Datadog급 AI Ops 플랫폼으로 5년 내 <strong>$1B+ ARR</strong> 가능.</p>
+    </div>
+  </div>
+  <div class="card p-5 border-violet-100 bg-violet-50">
+    <div class="sans text-xs font-bold text-violet-500 uppercase tracking-widest mb-1">총점 24/30 — 주간 최고점</div>
+    <p class="text-sm text-stone-700 leading-relaxed">개발 난이도 낮고 (pure HTML 데모 12h), 비즈니스 가능성 높음 (7/10). Flux 시너지 확인.</p>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="border-t border-stone-200 bg-white">
+  <div class="max-w-2xl mx-auto px-5 py-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+    <span class="sans text-sm text-stone-400">Built with <a href="https://flux.ai.kr" class="text-violet-600 font-semibold hover:underline">Flux Agent</a></span>
+    <a href="https://arxiv.org/abs/2607.26300v1" target="_blank" rel="noopener" class="sans text-sm text-stone-400 hover:text-violet-600 transition-colors">논문 원문 ↗</a>
+  </div>
+</footer>
+
+<script>
+const SESSIONS = [
+  {
+    id: 0, name: "에이전트 A", task: "의료 문헌 검색 및 요약",
+    status: "running", drift: false,
+    progress: 62,
+    steps: [
+      { label: "쿼리 파싱", state: "done", detail: "검색어 추출 완료 — 'sepsis biomarkers 2023'" },
+      { label: "PubMed 검색", state: "done", detail: "847개 논문 검색됨" },
+      { label: "필터링", state: "done", detail: "관련성 상위 42개 선별" },
+      { label: "요약 생성", state: "active", detail: "LLM 요약 중 (12/42)" },
+      { label: "보고서 작성", state: "pending", detail: "대기 중" },
+    ]
+  },
+  {
+    id: 1, name: "에이전트 B", task: "코드베이스 리팩토링",
+    status: "drift", drift: true,
+    progress: 41,
+    steps: [
+      { label: "저장소 클론", state: "done", detail: "github.com/org/backend — 완료" },
+      { label: "의존성 분석", state: "done", detail: "deprecated 패키지 17개 탐지" },
+      { label: "타입 추론", state: "drift", detail: "⚠ 예상 외 경로 진입 — 테스트 파일 수정 중" },
+      { label: "리팩토링 적용", state: "pending", detail: "대기 중" },
+      { label: "PR 생성", state: "pending", detail: "대기 중" },
+    ]
+  },
+  {
+    id: 2, name: "에이전트 C", task: "데이터 파이프라인 구축",
+    status: "paused", drift: false,
+    progress: 88,
+    steps: [
+      { label: "스키마 설계", state: "done", detail: "PostgreSQL 스키마 v2.1 확정" },
+      { label: "ETL 작성", state: "done", detail: "Airflow DAG 생성 완료" },
+      { label: "테스트 실행", state: "done", detail: "단위 테스트 94% 통과" },
+      { label: "배포 준비", state: "done", detail: "Docker 이미지 빌드 완료" },
+      { label: "프로덕션 배포", state: "paused", detail: "⏸ 수동 승인 대기 중" },
+    ]
+  }
+];
+
+let current = 0;
+
+function stateStyle(s) {
+  if (s === 'done')    return { bg:'#d1fae5', border:'#6ee7b7', text:'#065f46', icon:'✓' };
+  if (s === 'active')  return { bg:'#ede9fe', border:'#a78bfa', text:'#5b21b6', icon:'●' };
+  if (s === 'drift')   return { bg:'#fef3c7', border:'#fbbf24', text:'#92400e', icon:'⚠' };
+  if (s === 'paused')  return { bg:'#f1f5f9', border:'#94a3b8', text:'#475569', icon:'⏸' };
+  return { bg:'#f5f5f4', border:'#d6d3d1', text:'#78716c', icon:'○' };
+}
+
+function sessionStatusStyle(s, d) {
+  if (d) return 'background:#fef3c7;color:#92400e;border:1px solid #fbbf24';
+  if (s==='running') return 'background:#d1fae5;color:#065f46;border:1px solid #6ee7b7';
+  if (s==='paused') return 'background:#f1f5f9;color:#475569;border:1px solid #94a3b8';
+  return 'background:#e7e5e4;color:#57534e;border:1px solid #d6d3d1';
+}
+function sessionStatusLabel(s, d) {
+  if (d) return '⚠ 드리프트 감지';
+  if (s==='running') return '● 실행 중';
+  if (s==='paused') return '⏸ 일시정지';
+  return s;
+}
+
+function renderTabs() {
+  const c = document.getElementById('session-tabs');
+  c.innerHTML = SESSIONS.map((s,i) => `
+    <button onclick="selectSession(${i})" class="sans text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors ${i===current?'border-violet-400 bg-violet-50 text-violet-700':'border-stone-200 bg-white text-stone-600 hover:bg-stone-50'}">
+      ${s.name}
+      <span class="ml-1 drift-badge" style="${sessionStatusStyle(s.status,s.drift)}">${s.drift?'드리프트':s.status==='paused'?'정지':'실행'}</span>
+    </button>
+  `).join('');
+}
+
+function renderTrajectory() {
+  const sess = SESSIONS[current];
+  const badge = document.getElementById('session-status-badge');
+  badge.textContent = sessionStatusLabel(sess.status, sess.drift);
+  badge.style.cssText = sessionStatusStyle(sess.status, sess.drift);
+
+  const list = document.getElementById('trajectory-list');
+  list.innerHTML = sess.steps.map((step, i) => {
+    const st = stateStyle(step.state);
+    const isLast = i === sess.steps.length - 1;
+    return `
+      <div class="flex gap-3 fade-in" style="animation-delay:${i*60}ms">
+        <div class="flex flex-col items-center">
+          <div class="step-node" style="background:${st.bg};border:2px solid ${st.border};color:${st.text}">${st.icon}</div>
+          ${!isLast ? `<div class="connector" style="background:${st.border};opacity:0.4;width:2px;min-height:24px;margin-left:0"></div>` : ''}
+        </div>
+        <div class="pb-4 flex-1 min-w-0">
+          <div class="sans text-sm font-semibold" style="color:${st.text}">${step.label}</div>
+          <div class="text-xs text-stone-500 mt-0.5 leading-snug">${step.detail}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  const pct = sess.progress;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = pct + '%';
+}
+
+function selectSession(i) {
+  current = i;
+  document.getElementById('inject-panel').style.display = 'none';
+  document.getElementById('steer-msg').textContent = '';
+  renderTabs();
+  renderTrajectory();
+}
+
+function steer(action) {
+  const sess = SESSIONS[current];
+  const msg = document.getElementById('steer-msg');
+  const injectPanel = document.getElementById('inject-panel');
+  injectPanel.style.display = 'none';
+
+  if (action === 'rollback') {
+    const activeIdx = sess.steps.findIndex(s => s.state === 'active' || s.state === 'drift');
+    if (activeIdx > 0) {
+      sess.steps[activeIdx].state = 'pending';
+      sess.steps[activeIdx-1].state = 'active';
+      sess.progress = Math.max(0, sess.progress - 18);
+      sess.drift = false; sess.status = 'running';
+      msg.textContent = '↩ 이전 단계로 롤백 완료. 에이전트가 재실행 중입니다.';
+    } else {
+      msg.textContent = '첫 번째 단계입니다. 더 이상 롤백할 수 없습니다.';
+    }
+    renderTabs(); renderTrajectory();
+  } else if (action === 'inject') {
+    injectPanel.style.display = 'block';
+    msg.textContent = '수동 지시를 입력하면 현재 에이전트 컨텍스트에 주입됩니다.';
+  } else if (action === 'autopilot') {
+    if (sess.drift) {
+      const driftIdx = sess.steps.findIndex(s => s.state === 'drift');
+      if (driftIdx >= 0) {
+        sess.steps[driftIdx].state = 'done';
+        sess.steps[driftIdx].detail = '✓ 자동 교정됨 — 원래 경로 복구';
+        if (driftIdx+1 < sess.steps.length) sess.steps[driftIdx+1].state = 'active';
+        sess.drift = false; sess.status = 'running';
+        sess.progress = Math.min(100, sess.progress + 22);
+      }
+      msg.textContent = '⚡ 드리프트 자동 교정 완료. 에이전트가 정상 경로로 복구되었습니다.';
+    } else {
+      msg.textContent = '현재 세션에서 드리프트가 감지되지 않았습니다. 에이전트 B를 선택해 시험해보세요.';
+    }
+    renderTabs(); renderTrajectory();
+  } else if (action === 'pause') {
+    if (sess.status !== 'paused') {
+      sess.status = 'paused';
+      const activeIdx = sess.steps.findIndex(s => s.state === 'active');
+      if (activeIdx >= 0) sess.steps[activeIdx].state = 'paused';
+      msg.textContent = '⏸ 에이전트 일시정지됨. 언제든지 재개할 수 있습니다.';
+    } else {
+      sess.status = 'running';
+      const pausedIdx = sess.steps.findIndex(s => s.state === 'paused');
+      if (pausedIdx >= 0) sess.steps[pausedIdx].state = 'active';
+      msg.textContent = '▶ 에이전트 재개됨.';
+    }
+    renderTabs(); renderTrajectory();
+  }
+}
+
+function submitInject() {
+  const val = document.getElementById('inject-input').value.trim();
+  const sess = SESSIONS[current];
+  const msg = document.getElementById('steer-msg');
+  if (!val) { msg.textContent = '지시 내용을 입력해주세요.'; return; }
+  const activeIdx = sess.steps.findIndex(s => s.state === 'active' || s.state === 'drift');
+  if (activeIdx >= 0) {
+    sess.steps[activeIdx].detail = `✎ 지시 주입: "${val}"`;
+    sess.steps[activeIdx].state = 'active';
+    sess.drift = false; sess.status = 'running';
+  }
+  msg.textContent = `✎ 지시가 에이전트 컨텍스트에 주입되었습니다: "${val}"`;
+  document.getElementById('inject-input').value = '';
+  document.getElementById('inject-panel').style.display = 'none';
+  renderTabs(); renderTrajectory();
+}
+
+// Init
+renderTabs();
+renderTrajectory();
+</script>
+</body>
+</html>
