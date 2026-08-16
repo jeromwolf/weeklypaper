@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Safety as Runtime Contract — Interactive Demo</title>
+<meta property="og:title" content="Agent Safety Should Be a Runtime Contract">
+<meta property="og:description" content="AI 에이전트 안전성은 훈련이 아닌 런타임 계약으로 구현되어야 한다 — 예방적 제어 + 증거 기반 검증의 이중 구조">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Noto+Serif+KR:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: 'Source Serif 4', 'Noto Serif KR', Charter, Georgia, serif; background: #fafaf9; color: #1c1917; }
+  h1,h2,h3,h4,h5,h6,button,label,nav,.sans,.tag { font-family: 'Pretendard', 'Inter', system-ui, -apple-system, sans-serif; }
+  .fade-in { animation: fadeIn 0.6s ease forwards; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+  .mono { font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace; }
+  .log-entry { border-left: 2px solid #e7e5e4; padding-left: 12px; margin-bottom: 6px; }
+  .log-entry.blocked { border-color: #ef4444; }
+  .log-entry.passed { border-color: #22c55e; }
+  .log-entry.warn { border-color: #f59e0b; }
+  .step-line { position: absolute; left: 19px; top: 28px; bottom: 0; width: 2px; background: #e7e5e4; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- Hero -->
+<section class="max-w-2xl mx-auto px-6 pt-16 pb-10">
+  <div class="mb-4 flex flex-wrap gap-2">
+    <span class="tag text-xs px-2 py-1 rounded bg-violet-50 text-violet-700 border border-violet-200">arXiv 2608.11274</span>
+    <span class="tag text-xs px-2 py-1 rounded bg-stone-100 text-stone-600 border border-stone-200">AI Safety</span>
+    <span class="tag text-xs px-2 py-1 rounded bg-stone-100 text-stone-600 border border-stone-200">Agentic AI</span>
+  </div>
+  <h1 class="text-2xl md:text-3xl font-bold text-stone-900 leading-tight mb-3">Agent Safety Should Be a<br><span class="text-violet-600">Runtime Contract</span></h1>
+  <p class="text-sm text-stone-500 sans mb-4">Albus W. Ng, Yi Han, Jusheng Zhang, Wenhao Wang &nbsp;·&nbsp; <a href="https://arxiv.org/abs/2608.11274v1" target="_blank" class="text-violet-600 underline underline-offset-2">arxiv.org/abs/2608.11274</a></p>
+  <p class="text-base leading-relaxed text-stone-700">RLHF·DPO 등 <em>훈련 기반</em> 안전성만으로는 코드 실행·DB 변경·외부 API 호출을 수행하는 자율 에이전트를 통제할 수 없다. 안전성은 <strong>런타임 계약</strong>으로 구현되어야 하며, 예방적 차단(Preventive)과 증거 검증(Evidential)의 이중 구조로 작동해야 한다.</p>
+</section>
+
+<!-- Key Insight -->
+<section class="max-w-2xl mx-auto px-6 pb-10">
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-white border border-stone-200 rounded-xl p-5">
+      <div class="sans text-xs font-semibold text-violet-600 uppercase tracking-wide mb-2">Preventive Face</div>
+      <h3 class="sans font-bold text-stone-900 mb-2">예방적 제어</h3>
+      <p class="text-sm text-stone-600 leading-relaxed">샌드박스 · 권한 게이트 · 출력 필터 · 궤적 모니터를 통해 위험한 액션이 <em>실행되기 전에</em> 차단한다.</p>
+    </div>
+    <div class="bg-white border border-stone-200 rounded-xl p-5">
+      <div class="sans text-xs font-semibold text-pink-500 uppercase tracking-wide mb-2">Evidential Face</div>
+      <h3 class="sans font-bold text-stone-900 mb-2">증거 기반 검증</h3>
+      <p class="text-sm text-stone-600 leading-relaxed">테스트 실행 결과 · 로그 · 파일 차이 · 인용 근거 등 검증 가능한 증거를 제출해야만 태스크 완료로 인정한다.</p>
+    </div>
+  </div>
+  <div class="mt-4 bg-violet-50 border border-violet-100 rounded-xl p-5">
+    <p class="sans text-xs font-semibold text-violet-700 mb-1">핵심 명제</p>
+    <p class="text-sm text-stone-700 leading-relaxed">안전한 AI의 단위는 <strong>모델</strong>이 아니라 <strong>검증 가능한 증거를 동반한 에이전트 궤적(Trajectory-with-Checkable-Evidence)</strong>이다.</p>
+  </div>
+</section>
+
+<!-- Interactive Demo -->
+<section class="max-w-2xl mx-auto px-6 pb-14">
+  <h2 class="text-xl font-bold text-stone-900 mb-1">런타임 계약 시뮬레이터</h2>
+  <p class="text-sm text-stone-500 sans mb-6">에이전트 액션을 선택하면 런타임 계약 레이어가 어떻게 반응하는지 확인하세요.</p>
+
+  <!-- Action selector -->
+  <div class="bg-white border border-stone-200 rounded-xl p-5 mb-5">
+    <label class="sans text-xs font-semibold text-stone-500 uppercase tracking-wide block mb-3">에이전트 요청 액션 선택</label>
+    <div class="grid grid-cols-1 gap-2" id="actionList">
+      <!-- filled by JS -->
+    </div>
+  </div>
+
+  <!-- Pipeline visualization -->
+  <div class="bg-white border border-stone-200 rounded-xl p-5 mb-5" id="pipelinePanel" style="display:none">
+    <div class="sans text-xs font-semibold text-stone-500 uppercase tracking-wide mb-4">런타임 계약 파이프라인</div>
+    <div id="pipelineSteps" class="space-y-0"></div>
+  </div>
+
+  <!-- Result -->
+  <div id="resultPanel" style="display:none" class="rounded-xl p-5 border fade-in">
+    <div class="sans text-xs font-semibold uppercase tracking-wide mb-2" id="resultLabel"></div>
+    <div class="mono text-sm text-stone-700 space-y-1" id="logOutput"></div>
+    <div id="evidenceBox" class="mt-4" style="display:none">
+      <div class="sans text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2">증거 체인 (Evidence Chain)</div>
+      <div id="evidenceList" class="space-y-1"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Publication Imbalance Chart -->
+<section class="max-w-2xl mx-auto px-6 pb-14">
+  <h2 class="text-xl font-bold text-stone-900 mb-1">학술 출판 불균형</h2>
+  <p class="text-sm text-stone-600 leading-relaxed mb-4">NeurIPS · ICML · ICLR 2023–2025 전체 28,560편 분석 결과, 훈련 시점 안전성 연구와 배포 시점 안전성 연구 사이에 <strong>8–12배 격차</strong>가 존재한다.</p>
+  <div class="bg-white border border-stone-200 rounded-xl p-5">
+    <canvas id="pubChart" height="180"></canvas>
+    <p class="sans text-xs text-stone-400 mt-3 text-center">출처: 논문 내 타이틀 수준 감사 데이터 (28,560편)</p>
+  </div>
+</section>
+
+<!-- Business Analysis -->
+<section class="max-w-2xl mx-auto px-6 pb-14">
+  <h2 class="text-xl font-bold text-stone-900 mb-6">비즈니스 분석</h2>
+  <div class="grid md:grid-cols-2 gap-4 mb-4">
+    <div class="bg-white border border-stone-200 rounded-xl p-5">
+      <div class="sans text-xs font-semibold text-violet-600 uppercase tracking-wide mb-2">Wedge Pitch</div>
+      <p class="text-sm text-stone-700 leading-relaxed">엔터프라이즈 AI 에이전트를 프로덕션에 배포하는 DevOps 팀의 <em>"에이전트가 실제로 무엇을 했는지 증명할 수 없다"</em>는 감사·컴플라이언스 페인을 <strong>런타임 안전 계약 SaaS</strong>로 해결한다.</p>
+    </div>
+    <div class="bg-white border border-stone-200 rounded-xl p-5">
+      <div class="sans text-xs font-semibold text-pink-500 uppercase tracking-wide mb-2">Target Customer</div>
+      <p class="text-sm text-stone-700 leading-relaxed">Fortune 2000 기업의 플랫폼 엔지니어링 / AI Ops 팀. SOC2·ISO27001 감사 대응과 인시던트 책임 추적이 필수인 금융·헬스케어·엔터프라이즈 SaaS.</p>
+    </div>
+    <div class="bg-white border border-stone-200 rounded-xl p-5">
+      <div class="sans text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2">경쟁사</div>
+      <ul class="text-sm text-stone-700 space-y-1">
+        <li>· Enkrypt AI</li>
+        <li>· Protect AI</li>
+        <li>· Arthur AI</li>
+      </ul>
+    </div>
+    <div class="bg-white border border-stone-200 rounded-xl p-5">
+      <div class="sans text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2">TAM &amp; 유니콘 시나리오</div>
+      <p class="text-sm text-stone-700 leading-relaxed"><strong>$12B TAM</strong>. 시트당 $500–2,000/월 + 실행 이벤트 과금. 2027년까지 ARR $200M → <strong>$1B+ 밸류에이션</strong> 경로.</p>
+    </div>
+  </div>
+  <div class="bg-violet-50 border border-violet-100 rounded-xl p-5">
+    <div class="sans text-xs font-semibold text-violet-700 mb-1">📊 비즈니스 점수</div>
+    <div class="flex items-center gap-4">
+      <div>
+        <span class="sans text-2xl font-bold text-violet-700">8</span><span class="sans text-stone-400 text-sm">/10</span>
+        <p class="sans text-xs text-stone-500 mt-0.5">비즈니스 가능성</p>
+      </div>
+      <div class="w-px h-10 bg-violet-200"></div>
+      <div>
+        <span class="sans text-2xl font-bold text-stone-700">22</span><span class="sans text-stone-400 text-sm">/30</span>
+        <p class="sans text-xs text-stone-500 mt-0.5">총점 · 주간 최고점</p>
+      </div>
+      <div class="w-px h-10 bg-violet-200"></div>
+      <div>
+        <span class="sans text-sm font-semibold text-green-600">✓ Flux 시너지</span>
+        <p class="sans text-xs text-stone-500 mt-0.5">빌드 가능</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="border-t border-stone-200 bg-white">
+  <div class="max-w-2xl mx-auto px-6 py-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+    <div>
+      <p class="sans text-sm text-stone-500">Built with <a href="https://flux.ai.kr" target="_blank" class="text-violet-600 font-semibold">Flux Agent</a> · <a href="https://flux.ai.kr" target="_blank" class="text-violet-600 underline underline-offset-2">flux.ai.kr</a></p>
+      <p class="sans text-xs text-stone-400 mt-1">논문 원문: <a href="https://arxiv.org/abs/2608.11274v1" target="_blank" class="underline underline-offset-2 text-stone-400">arxiv.org/abs/2608.11274v1</a></p>
+    </div>
+    <p class="sans text-xs text-stone-400 max-w-xs text-right">이 페이지는 논문의 핵심 컨셉을 교육 목적으로 시각화한 데모입니다.</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+<script>
+const ACTIONS = [
+  {
+    id: 'read_file',
+    label: '파일 읽기 (read /data/report.txt)',
+    risk: 'low',
+    desc: '읽기 전용 파일 접근 요청',
+    steps: [
+      { layer: 'Permission Gate', status: 'pass', msg: 'READ 권한 확인됨 — /data/** 허용 목록 매칭' },
+      { layer: 'Sandbox Check', status: 'pass', msg: '파일 경로 탈출(path traversal) 없음 확인' },
+      { layer: 'Output Filter', status: 'pass', msg: '출력 내 민감 정보 패턴 없음' },
+      { layer: 'Trajectory Monitor', status: 'pass', msg: '최근 10회 읽기 빈도 정상 범위' },
+    ],
+    evidence: [
+      { type: 'log', content: 'file_read: /data/report.txt @ 2025-07-15T09:12:34Z' },
+      { type: 'hash', content: 'SHA256: a3f2c1... (파일 무결성 검증 완료)' },
+    ],
+    verdict: 'ALLOWED',
+  },
+  {
+    id: 'exec_code',
+    label: '코드 실행 (exec: python deploy.py --env prod)',
+    risk: 'high',
+    desc: '프로덕션 환경 배포 스크립트 실행 요청',
+    steps: [
+      { layer: 'Permission Gate', status: 'warn', msg: 'EXEC 권한 — 승인 필요 목록에 해당, 인간 승인 요청 중' },
+      { layer: 'Sandbox Check', status: 'block', msg: '⛔ --env prod 플래그 감지: 프로덕션 직접 실행 정책 위반' },
+    ],
+    evidence: [],
+    verdict: 'BLOCKED',
+    blockReason: '프로덕션 환경 직접 실행은 허용되지 않습니다. 스테이징 환경에서 먼저 실행하거나 인간 승인을 획득하세요.',
+  },
+  {
+    id: 'db_write',
+    label: 'DB 변경 (UPDATE users SET role="admin" WHERE id=42)',
+    risk: 'critical',
+    desc: '사용자 권한 상승 DB 변경 요청',
+    steps: [
+      { layer: 'Permission Gate', status: 'block', msg: '⛔ WRITE 권한 없음 — users 테이블 role 컬럼은 read-only 정책' },
+    ],
+    evidence: [],
+    verdict: 'BLOCKED',
+    blockReason: '권한 상승 쿼리는 런타임 계약 위반입니다. 이 액션은 기록되었으며 보안 팀에 알림이 전송됩니다.',
+  },
+  {
+    id: 'test_run',
+    label: '테스트 실행 후 보고 (run tests → submit evidence)',
+    risk: 'low',
+    desc: '단위 테스트 실행 후 결과를 증거로 제출하여 태스크 완료 요청',
+    steps: [
+      { layer: 'Permission Gate', status: 'pass', msg: 'EXEC 권한 확인됨 — 테스트 환경(/sandbox) 허용' },
+      { layer: 'Sandbox Check', status: 'pass', msg: '격리 샌드박스 내 실행 확인' },
+      { layer: 'Trajectory Monitor', status: 'pass', msg: '궤적 스키마 유효: plan→exec→test→report 순서 정상' },
+      { layer: 'Evidence Gate', status: 'pass', msg: '✓ 테스트 결과 23/23 통과 · 로그 해시 검증 완료 · 태스크 완료 승인' },
+    ],
+    evidence: [
+      { type: 'test', content: 'pytest: 23 passed, 0 failed (0.34s) @ sandbox-run-id: f9a2b1' },
+      { type: 'log', content: 'execution_log: 47 lines captured, SHA256: 8e3d22...' },
+      { type: 'diff', content: 'file_diff: src/auth.py +12/-3 lines (검토 완료)' },
+    ],
+    verdict: 'ALLOWED',
+  },
+  {
+    id: 'send_email',
+    label: '이메일 대량 발송 (send to 5,000 users)',
+    risk: 'high',
+    desc: '마케팅 이메일 5,000건 일괄 발송 요청',
+    steps: [
+      { layer: 'Permission Gate', status: 'warn', msg: 'SEND 권한 — 100건 이상 발송은 인간 승인 필요' },
+      { layer: 'Output Filter', status: 'warn', msg: '이메일 내용 PII 포함 여부 검사 중...' },
+      { layer: 'Trajectory Monitor', status: 'block', msg: '⛔ 이상 궤적 감지: 계획 단계 없이 대량 발송 직접 요청 — 의심스러운 행동 패턴' },
+    ],
+    evidence: [],
+    verdict: 'BLOCKED',
+    blockReason: '계획-검토 단계를 거치지 않은 대량 발송은 차단됩니다. 발송 계획서와 인간 승인을 먼저 획득하세요.',
+  },
+];
+
+function renderActionList() {
+  const container = document.getElementById('actionList');
+  container.innerHTML = '';
+  ACTIONS.forEach(a => {
+    const riskColor = a.risk === 'critical' ? 'border-red-300 bg-red-50' : a.risk === 'high' ? 'border-amber-300 bg-amber-50' : 'border-stone-200 bg-stone-50';
+    const riskText = a.risk === 'critical' ? 'text-red-600' : a.risk === 'high' ? 'text-amber-600' : 'text-green-600';
+    const badge = a.risk === 'critical' ? '위험' : a.risk === 'high' ? '주의' : '안전';
+    const btn = document.createElement('button');
+    btn.className = `w-full text-left rounded-lg border px-4 py-3 flex items-start gap-3 hover:shadow-sm transition-shadow ${riskColor}`;
+    btn.setAttribute('aria-label', a.label);
+    btn.innerHTML = `<span class="sans text-xs font-bold mt-0.5 ${riskText} min-w-[28px]">${badge}</span><div><div class="sans text-sm font-semibold text-stone-800 mono">${a.label}</div><div class="sans text-xs text-stone-500 mt-0.5">${a.desc}</div></div>`;
+    btn.onclick = () => runSimulation(a);
+    container.appendChild(btn);
+  });
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function runSimulation(action) {
+  const pipeline = document.getElementById('pipelinePanel');
+  const result = document.getElementById('resultPanel');
+  const stepsEl = document.getElementById('pipelineSteps');
+  pipeline.style.display = 'block';
+  result.style.display = 'none';
+  stepsEl.innerHTML = '';
+  pipeline.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  for (let i = 0; i < action.steps.length; i++) {
+    const s = action.steps[i];
+    await sleep(i === 0 ? 200 : 500);
+    const statusColor = s.status === 'pass' ? 'text-green-600' : s.status === 'block' ? 'text-red-600' : 'text-amber-600';
+    const statusIcon = s.status === 'pass' ? '✓' : s.status === 'block' ? '✗' : '⚠';
+    const div = document.createElement('div');
+    div.className = 'relative pl-10 pb-5 fade-in';
+    div.innerHTML = `
+      <div class="absolute left-0 top-1 w-9 h-9 rounded-full border-2 flex items-center justify-center sans text-sm font-bold ${s.status === 'pass' ? 'border-green-400 bg-green-50 text-green-600' : s.status === 'block' ? 'border-red-400 bg-red-50 text-red-600' : 'border-amber-400 bg-amber-50 text-amber-600'}">${statusIcon}</div>
+      ${i < action.steps.length - 1 ? '<div class="step-line"></div>' : ''}
+      <div class="sans text-xs font-semibold text-stone-400 uppercase tracking-wide">${s.layer}</div>
+      <div class="text-sm text-stone-700 mt-0.5">${s.msg}</div>
+    `;
+    stepsEl.appendChild(div);
+    if (s.status === 'block') break;
+  }
+
+  await sleep(400);
+  result.style.display = 'block';
+  result.className = `rounded-xl p-5 border fade-in ${action.verdict === 'ALLOWED' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`;
+
+  const labelEl = document.getElementById('resultLabel');
+  labelEl.className = `sans text-xs font-semibold uppercase tracking-wide mb-2 ${action.verdict === 'ALLOWED' ? 'text-green-700' : 'text-red-700'}`;
+  labelEl.textContent = action.verdict === 'ALLOWED' ? '✓ 런타임 계약 통과 — 액션 허용됨' : '✗ 런타임 계약 위반 — 액션 차단됨';
+
+  const logEl = document.getElementById('logOutput');
+  logEl.innerHTML = '';
+  if (action.verdict === 'BLOCKED' && action.blockReason) {
+    const d = document.createElement('div');
+    d.className = 'log-entry blocked text-sm text-red-700';
+    d.textContent = action.blockReason;
+    logEl.appendChild(d);
+  }
+
+  const evBox = document.getElementById('evidenceBox');
+  const evList = document.getElementById('evidenceList');
+  evList.innerHTML = '';
+  if (action.evidence && action.evidence.length > 0) {
+    evBox.style.display = 'block';
+    action.evidence.forEach(e => {
+      const d = document.createElement('div');
+      d.className = 'log-entry passed mono text-xs text-stone-600 py-1';
+      d.innerHTML = `<span class="sans text-xs font-semibold text-stone-400 mr-2">[${e.type.toUpperCase()}]</span>${e.content}`;
+      evList.appendChild(d);
+    });
+  } else {
+    evBox.style.display = 'none';
+  }
+}
+
+renderActionList();
+
+window.addEventListener('load', () => {
+  const ctx = document.getElementById('pubChart');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['NeurIPS 2023–25', 'ICML 2023–25', 'ICLR 2023–25'],
+      datasets: [
+        { label: '훈련 시점 안전성', data: [720, 580, 510], backgroundColor: '#7c3aed22', borderColor: '#7c3aed', borderWidth: 1.5, borderRadius: 4 },
+        { label: '배포 시점 안전성', data: [72, 58, 51], backgroundColor: '#f4727222', borderColor: '#f47272', borderWidth: 1.5, borderRadius: 4 },
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { labels: { font: { family: 'Pretendard, Inter, system-ui', size: 12 }, color: '#57534e' } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw}편` } },
+        title: {
+          display: true,
+          text: '훈련 vs 배포 시점 안전성 논문 수 (추정, 8–12x 격차)',
+          font: { family: 'Pretendard, Inter, system-ui', size: 12, weight: '600' },
+          color: '#78716c',
+          padding: { bottom: 12 }
+        }
+      },
+      scales: {
+        y: { beginAtZero: true, ticks: { font: { family: 'Pretendard', size: 11 }, color: '#a8a29e' }, grid: { color: '#f5f5f4' } },
+        x: { ticks: { font: { family: 'Pretendard', size: 11 }, color: '#78716c' }, grid: { display: false } }
+      }
+    }
+  });
+});
+</script>
+</body>
+</html>
