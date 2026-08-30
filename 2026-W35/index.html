@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SparseRead — 적게 읽고, 더 잘 푼다</title>
+  <meta property="og:title" content="SparseRead — Token-Efficient Sparse Reading for AI Agents">
+  <meta property="og:description" content="AI 에이전트가 필요한 내용만 선택적으로 읽어 토큰 비용 92% 절감. 인터랙티브 데모로 확인하세요.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Noto+Serif+KR:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    body { font-family: 'Source Serif 4', 'Noto Serif KR', Charter, Georgia, serif; background: #fafaf9; color: #1c1917; }
+    h1,h2,h3,h4,h5,h6,button,label,nav,.sans,.tag { font-family: 'Pretendard', 'Inter', system-ui, -apple-system, sans-serif; }
+    .fade-in { animation: fadeIn 0.6s ease both; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+    .doc-line { transition: background 0.3s, opacity 0.3s; }
+    .doc-line.dimmed { opacity: 0.18; }
+    .doc-line.highlighted { background: #ede9fe; border-left: 3px solid #7c3aed; padding-left: 6px; opacity: 1; }
+    .doc-line.normal { opacity: 1; }
+    input[type=range] { accent-color: #7c3aed; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<!-- Hero -->
+<header class="max-w-2xl mx-auto px-6 pt-16 pb-10">
+  <div class="flex flex-wrap gap-2 mb-4">
+    <span class="tag text-xs px-2 py-1 rounded-full border border-violet-200 text-violet-600 bg-violet-50">arXiv 2608.22237</span>
+    <span class="tag text-xs px-2 py-1 rounded-full border border-stone-200 text-stone-500 bg-stone-50">AI Agents · Token Efficiency</span>
+  </div>
+  <h1 class="text-3xl md:text-4xl font-bold leading-tight mb-3 tracking-tight">적게 읽고, 더 잘 푼다<br><span class="text-stone-400 text-2xl font-semibold">Read Less, Solve More</span></h1>
+  <p class="text-base text-stone-600 mb-4 leading-relaxed">AI 에이전트가 외부 문서를 통째로 읽는 대신, <strong>필요한 증거만 선택적으로 수집</strong>하여 토큰 비용을 최대 <span class="text-violet-600 font-semibold">92.9%</span> 절감하는 훈련 없는 읽기 레이어 — SparseRead.</p>
+  <p class="text-sm text-stone-400 sans">Zedong Liu, Jiaan Wu, Xinyang Ma, Le Xu, Kai Wang, Yuanchao Hu, Dingwen Tao, Guangming Tan</p>
+  <a href="https://arxiv.org/abs/2608.22237v1" target="_blank" rel="noopener" class="inline-block mt-3 text-sm text-violet-600 hover:text-violet-800 underline underline-offset-2 sans">논문 원문 보기 →</a>
+</header>
+
+<!-- Key Insight -->
+<section class="max-w-2xl mx-auto px-6 pb-10">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="border border-stone-200 rounded-xl p-5 bg-white">
+      <div class="text-2xl font-bold text-violet-600 sans mb-1">92.9%</div>
+      <div class="text-sm text-stone-500 sans font-medium">토큰 사용량 절감</div>
+      <p class="text-sm text-stone-600 mt-2">불필요한 전체 문서 노출 없이 핵심 증거만 컨텍스트에 진입</p>
+    </div>
+    <div class="border border-stone-200 rounded-xl p-5 bg-white">
+      <div class="text-2xl font-bold text-pink-500 sans mb-1">89.0%</div>
+      <div class="text-sm text-stone-500 sans font-medium">응답 지연 감소</div>
+      <p class="text-sm text-stone-600 mt-2">Read Gate로 콘텐츠 입장 전 제어 → 파이프라인 전반 속도 향상</p>
+    </div>
+    <div class="border border-stone-200 rounded-xl p-5 bg-white">
+      <div class="text-2xl font-bold text-stone-700 sans mb-1">6종</div>
+      <div class="text-sm text-stone-500 sans font-medium">최신 모델에서 검증</div>
+      <p class="text-sm text-stone-600 mt-2">Claude Opus 5 포함 6개 프론티어 모델 × 5개 워크로드에서 일관된 성능</p>
+    </div>
+  </div>
+</section>
+
+<!-- Key Insight Card -->
+<section class="max-w-2xl mx-auto px-6 pb-12">
+  <div class="border-l-4 border-violet-400 pl-5 py-2 bg-violet-50 rounded-r-xl">
+    <p class="text-base text-stone-700 leading-relaxed"><strong>핵심 인사이트:</strong> 기존 컨텍스트 압축 기법은 이미 넓게 읽은 후 줄이지만, SparseRead는 <em>불필요한 증거가 모델 컨텍스트에 진입하기 전에</em> 차단한다. Read Gate → Reader Backends → 상태관리 프로토콜의 세 레이어가 선택적 증거 수집을 구조적으로 보장한다.</p>
+  </div>
+</section>
+
+<!-- Interactive Demo -->
+<section class="max-w-2xl mx-auto px-6 pb-16">
+  <h2 class="text-xl font-bold mb-1">인터랙티브 데모</h2>
+  <p class="text-sm text-stone-500 sans mb-6">질의를 선택하고 희소도(Sparsity)를 조절하며 SparseRead의 효과를 체험하세요.</p>
+
+  <!-- Query Selector -->
+  <div class="mb-5">
+    <label class="block text-sm font-semibold text-stone-600 sans mb-2">📋 에이전트 질의 선택</label>
+    <div class="grid grid-cols-1 gap-2" id="queryBtns">
+      <button onclick="selectQuery(0)" class="query-btn text-left px-4 py-3 rounded-lg border border-stone-200 bg-white hover:border-violet-300 text-sm text-stone-700 transition-colors sans">🔍 "2024년 3분기 반도체 수출 실적과 주요 품목별 증감률은?"</button>
+      <button onclick="selectQuery(1)" class="query-btn text-left px-4 py-3 rounded-lg border border-stone-200 bg-white hover:border-violet-300 text-sm text-stone-700 transition-colors sans">📊 "GPT-4o의 벤치마크 점수와 경쟁 모델 대비 우위 항목은?"</button>
+      <button onclick="selectQuery(2)" class="query-btn text-left px-4 py-3 rounded-lg border border-stone-200 bg-white hover:border-violet-300 text-sm text-stone-700 transition-colors sans">⚖️ "계약서 14조의 위약금 조항과 예외 사유를 요약하라."</button>
+    </div>
+  </div>
+
+  <!-- Sparsity Slider -->
+  <div class="mb-6">
+    <div class="flex justify-between items-center mb-2">
+      <label class="text-sm font-semibold text-stone-600 sans">희소도(Sparsity)</label>
+      <span id="sparsityVal" class="text-sm font-bold text-violet-600 sans">70%</span>
+    </div>
+    <input type="range" id="sparsitySlider" min="0" max="95" value="70" step="5" class="w-full h-2 rounded" oninput="updateDemo()">
+    <div class="flex justify-between text-xs text-stone-400 sans mt-1"><span>0% (전체 읽기)</span><span>95% (최고 희소)</span></div>
+  </div>
+
+  <!-- Document Visualization -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+    <!-- Before -->
+    <div class="border border-stone-200 rounded-xl p-4 bg-white">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="tag text-xs px-2 py-0.5 bg-stone-100 text-stone-500 rounded sans font-semibold">기존 방식 (전체 읽기)</span>
+      </div>
+      <div id="docBefore" class="space-y-1.5 text-xs font-mono"></div>
+      <div class="mt-3 pt-3 border-t border-stone-100">
+        <span class="text-xs text-stone-400 sans">토큰 수: </span>
+        <span id="tokenBefore" class="text-xs font-bold text-stone-600 sans">—</span>
+      </div>
+    </div>
+    <!-- After -->
+    <div class="border border-violet-200 rounded-xl p-4 bg-white">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="tag text-xs px-2 py-0.5 bg-violet-100 text-violet-600 rounded sans font-semibold">SparseRead (선택적 읽기)</span>
+      </div>
+      <div id="docAfter" class="space-y-1.5 text-xs font-mono"></div>
+      <div class="mt-3 pt-3 border-t border-violet-100">
+        <span class="text-xs text-stone-400 sans">토큰 수: </span>
+        <span id="tokenAfter" class="text-xs font-bold text-violet-600 sans">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="border border-stone-200 rounded-xl p-5 bg-white mb-6">
+    <div class="grid grid-cols-3 gap-4 text-center">
+      <div>
+        <div id="statSaved" class="text-2xl font-bold text-violet-600 sans">—</div>
+        <div class="text-xs text-stone-400 sans mt-0.5">토큰 절감률</div>
+      </div>
+      <div>
+        <div id="statLatency" class="text-2xl font-bold text-pink-500 sans">—</div>
+        <div class="text-xs text-stone-400 sans mt-0.5">지연 감소 추정</div>
+      </div>
+      <div>
+        <div id="statCost" class="text-2xl font-bold text-stone-600 sans">—</div>
+        <div class="text-xs text-stone-400 sans mt-0.5">월간 비용 절감 추정</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <div class="border border-stone-200 rounded-xl p-5 bg-white">
+    <h3 class="text-sm font-semibold sans text-stone-600 mb-4">희소도별 토큰 절감 효과 (논문 재현)</h3>
+    <canvas id="sparseChart" height="160" aria-label="희소도별 토큰 절감 차트"></canvas>
+  </div>
+</section>
+
+<!-- Business Analysis -->
+<section class="max-w-2xl mx-auto px-6 pb-16">
+  <h2 class="text-xl font-bold mb-6">비즈니스 분석</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="border border-stone-200 rounded-xl p-5 bg-white">
+      <h3 class="text-sm font-bold sans text-stone-500 uppercase tracking-wide mb-2">Wedge Pitch</h3>
+      <p class="text-sm text-stone-700 leading-relaxed">LLM 에이전트를 운영하는 SaaS·엔터프라이즈 팀의 과도한 토큰 비용과 지연시간을 선택적 문서 읽기 레이어로 최대 <strong>92% 절감</strong>. 훈련 불필요·모델 투명 — 기존 파이프라인에 레이어만 추가.</p>
+    </div>
+    <div class="border border-stone-200 rounded-xl p-5 bg-white">
+      <h3 class="text-sm font-bold sans text-stone-500 uppercase tracking-wide mb-2">Target Customer</h3>
+      <p class="text-sm text-stone-700 leading-relaxed">월 수천만 원 이상 LLM API 비용 지출 중인 <strong>시리즈B+ SaaS 기업</strong>의 AI 인프라 엔지니어링 팀 리더. RAG·에이전트 파이프라인 운영이 핵심 사업인 팀.</p>
+    </div>
+    <div class="border border-stone-200 rounded-xl p-5 bg-white">
+      <h3 class="text-sm font-bold sans text-stone-500 uppercase tracking-wide mb-2">경쟁사</h3>
+      <div class="flex flex-wrap gap-2 mt-1">
+        <span class="tag text-xs px-2 py-1 border border-stone-200 rounded text-stone-600 bg-stone-50">LlamaIndex</span>
+        <span class="tag text-xs px-2 py-1 border border-stone-200 rounded text-stone-600 bg-stone-50">LangChain</span>
+        <span class="tag text-xs px-2 py-1 border border-stone-200 rounded text-stone-600 bg-stone-50">Contextual AI</span>
+      </div>
+      <p class="text-sm text-stone-600 mt-3">기존 솔루션은 읽은 후 압축하나, SparseRead는 <em>진입 전 차단</em>으로 구조적 차별화.</p>
+    </div>
+    <div class="border border-stone-200 rounded-xl p-5 bg-white">
+      <h3 class="text-sm font-bold sans text-stone-500 uppercase tracking-wide mb-2">유니콘 시나리오</h3>
+      <p class="text-sm text-stone-700 leading-relaxed">AI 에이전트 인프라 비용 최적화 레이어로 포지셔닝 → AWS·Azure·GCP 마켓플레이스 입점 → <strong>절감 토큰 비율 과금</strong> usage-based 모델. TAM <strong>$12B</strong>, 5년 내 $1B 도달 시나리오.</p>
+    </div>
+  </div>
+  <div class="mt-4 border border-violet-100 rounded-xl p-4 bg-violet-50">
+    <p class="text-sm text-violet-700 sans"><strong>💡 Flux 시너지:</strong> AI 에이전트 파이프라인 구축 플랫폼과 결합 시 SparseRead를 기본 읽기 레이어로 제공, 고객사 운영 비용 절감을 즉시 측정·리포팅 가능.</p>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="border-t border-stone-200 bg-white">
+  <div class="max-w-2xl mx-auto px-6 py-8 flex flex-col md:flex-row items-center justify-between gap-3">
+    <p class="text-sm text-stone-400 sans">Built with <a href="https://flux.ai.kr" target="_blank" rel="noopener" class="text-violet-600 hover:underline font-semibold">Flux Agent</a> — AI 논문 인터랙티브 데모 플랫폼</p>
+    <a href="https://arxiv.org/abs/2608.22237v1" target="_blank" rel="noopener" class="text-sm text-stone-500 hover:text-violet-600 sans underline underline-offset-2">논문 원문 (arXiv 2608.22237) →</a>
+  </div>
+</footer>
+
+<script defer>
+const QUERIES = [
+  {
+    label: "반도체 수출",
+    lines: [
+      "▌ [산업통상자원부 보도자료 2024.10]",
+      "  1. 서론: 글로벌 경제 불확실성 지속",
+      "  2. 수출 전략 방향 및 정책 개요",
+      "  3. 지역별 교역 현황 — EU, 미국, 중국",
+      "★ 4. 반도체 수출: $112억 (+23.4% YoY)",
+      "★ 5. 메모리 +31.2% | 시스템반도체 +8.7%",
+      "  6. 자동차 수출 동향 및 전망",
+      "  7. 화학 제품 수출 분석",
+      "★ 8. 반도체 3분기 누적 $298억, 연간 최고치",
+      "  9. 농수산물 수출 현황",
+      " 10. 부록: 통계 방법론 및 데이터 출처",
+    ],
+    keyLines: [3,4,7]
+  },
+  {
+    label: "GPT-4o 벤치마크",
+    lines: [
+      "▌ [OpenAI Technical Report — GPT-4o]",
+      "  1. 모델 아키텍처 및 학습 데이터 개요",
+      "  2. 안전성 평가 및 RLHF 절차",
+      "★ 3. MMLU: 88.7 (GPT-4: 86.4, Claude3: 86.8)",
+      "★ 4. HumanEval: 90.2 — 코딩 최고 성능",
+      "  5. 다국어 지원 및 번역 품질 평가",
+      "★ 6. 멀티모달 우위: 이미지 이해 +18pt",
+      "  7. 배포 인프라 및 API 요금 체계",
+      "  8. 사용 정책 및 콘텐츠 필터링",
+      "  9. 향후 연구 방향 및 한계",
+    ],
+    keyLines: [2,3,5]
+  },
+  {
+    label: "계약서 위약금",
+    lines: [
+      "▌ [서비스 이용 계약서 v3.2]",
+      "  1조. 목적 및 용어 정의",
+      "  5조. 서비스 이용 요금 및 납부",
+      "  8조. 지식재산권 귀속",
+      " 11조. 개인정보 처리 방침",
+      "★14조. 위약금: 계약액의 15% 적용",
+      "★14조. 예외: 천재지변·상호합의·귀책없는 경우",
+      "★14조. 위약금 청구 기간: 30일 이내 서면통보",
+      " 18조. 분쟁 해결 및 관할 법원",
+      " 22조. 계약의 해지 및 갱신 절차",
+    ],
+    keyLines: [4,5,6]
+  }
+];
+
+let currentQuery = 0;
+let chartInstance = null;
+
+function selectQuery(idx) {
+  currentQuery = idx;
+  document.querySelectorAll('.query-btn').forEach((b,i) => {
+    b.classList.toggle('border-violet-400', i===idx);
+    b.classList.toggle('bg-violet-50', i===idx);
+    b.classList.toggle('text-violet-700', i===idx);
+  });
+  updateDemo();
+}
+
+function updateDemo() {
+  const sparsity = parseInt(document.getElementById('sparsitySlider').value);
+  document.getElementById('sparsityVal').textContent = sparsity + '%';
+  const q = QUERIES[currentQuery];
+  const totalLines = q.lines.length;
+  const totalTokens = totalLines * 38;
+
+  // Before: all lines normal
+  const beforeDiv = document.getElementById('docBefore');
+  beforeDiv.innerHTML = q.lines.map(l =>
+    `<div class="doc-line normal py-0.5 px-1 rounded text-stone-600">${escHtml(l)}</div>`
+  ).join('');
+
+  // After: only keyLines highlighted, others dimmed based on sparsity
+  const sparseFraction = sparsity / 100;
+  const nonKeyCount = totalLines - q.keyLines.length;
+  const dimCount = Math.round(nonKeyCount * sparseFraction);
+
+  // decide which non-key lines to dim
+  const nonKeyIndices = q.lines.map((_,i)=>i).filter(i => !q.keyLines.includes(i));
+  const toDim = new Set(nonKeyIndices.slice(0, dimCount));
+
+  const afterDiv = document.getElementById('docAfter');
+  afterDiv.innerHTML = q.lines.map((l,i) => {
+    let cls = 'doc-line py-0.5 px-1 rounded ';
+    if (q.keyLines.includes(i)) cls += 'highlighted text-stone-800';
+    else if (toDim.has(i)) cls += 'dimmed text-stone-400';
+    else cls += 'normal text-stone-600';
+    return `<div class="${cls}">${escHtml(l)}</div>`;
+  }).join('');
+
+  // Token counts
+  const keptLines = q.keyLines.length + (nonKeyCount - dimCount);
+  const sparseTokens = keptLines * 38;
+  document.getElementById('tokenBefore').textContent = totalTokens.toLocaleString() + ' tokens';
+  document.getElementById('tokenAfter').textContent = sparseTokens.toLocaleString() + ' tokens';
+
+  // Stats
+  const savedPct = Math.round((1 - sparseTokens/totalTokens)*100);
+  const latencyPct = Math.round(savedPct * 0.94);
+  const monthlyCost = Math.round(savedPct * 0.31); // $M proxy
+  document.getElementById('statSaved').textContent = savedPct + '%';
+  document.getElementById('statLatency').textContent = latencyPct + '%';
+  document.getElementById('statCost').textContent = '~$' + monthlyCost + 'K';
+
+  updateChart(sparsity);
+}
+
+function updateChart(current) {
+  const labels = [0,10,20,30,40,50,60,70,80,90,95];
+  const savings = [0,8,17,27,37,48,59,70,80,88,91];
+
+  if (chartInstance) {
+    chartInstance.data.datasets[0].data = savings;
+    // mark current
+    chartInstance.data.datasets[1] = {
+      label: '현재 설정',
+      data: labels.map(l => l===current ? savings[labels.indexOf(current)] : null),
+      pointBackgroundColor: '#7c3aed',
+      pointRadius: 8,
+      pointHoverRadius: 8,
+      type: 'scatter',
+      showLine: false,
+      borderWidth: 0,
+    };
+    chartInstance.update('none');
+    return;
+  }
+
+  const ctx = document.getElementById('sparseChart').getContext('2d');
+  chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels.map(l=>l+'%'),
+      datasets: [{
+        label: '토큰 절감률',
+        data: savings,
+        borderColor: '#7c3aed',
+        backgroundColor: 'rgba(124,58,237,0.08)',
+        fill: true,
+        tension: 0.4,
+        pointRadius: 3,
+        pointBackgroundColor: '#7c3aed',
+        borderWidth: 2,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: { label: ctx => ` 절감 ${ctx.parsed.y}%` }
+        }
+      },
+      scales: {
+        x: { title: { display: true, text: '희소도 (Sparsity)', font: { family: 'Pretendard,Inter', size: 11 } }, grid: { color: '#f5f5f4' } },
+        y: { min: 0, max: 100, title: { display: true, text: '토큰 절감 (%)', font: { family: 'Pretendard,Inter', size: 11 } }, grid: { color: '#f5f5f4' } }
+      }
+    }
+  });
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Init
+selectQuery(0);
+</script>
+</body>
+</html>
