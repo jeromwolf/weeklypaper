@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explaining AI Agents Through Execution Traces</title>
+  <meta property="og:title" content="Explaining AI Agents Through Execution Traces">
+  <meta property="og:description" content="AI 에이전트 실행 흔적을 구조화된 보고서와 자연언어 설명으로 변환하는 XAI 프레임워크 인터랙티브 데모">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Noto+Serif+KR:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Source Serif 4', 'Noto Serif KR', Charter, Georgia, serif; background: #fafaf9; color: #1c1917; }
+    h1,h2,h3,h4,h5,h6,button,label,nav,.sans,.tag { font-family: 'Pretendard', 'Inter', system-ui, -apple-system, sans-serif; }
+    .fade-in { animation: fadeIn 0.5s ease-in; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .step-card { border: 1px solid #e7e5e4; background: white; border-radius: 8px; }
+    .trace-line { stroke: #d4d4d4; stroke-width: 1.5; }
+    .trace-active { stroke: #7c3aed; stroke-width: 2; }
+    .badge { font-family: 'Pretendard','Inter',sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; padding: 2px 8px; border-radius: 99px; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<!-- Hero -->
+<header class="border-b border-stone-200 bg-white">
+  <div class="max-w-3xl mx-auto px-6 py-14">
+    <div class="flex flex-wrap gap-2 mb-5">
+      <span class="badge bg-violet-50 text-violet-700">XAI</span>
+      <span class="badge bg-pink-50 text-pink-600">AI Agents</span>
+      <span class="badge bg-stone-100 text-stone-600">arXiv 2609.06063</span>
+    </div>
+    <h1 class="text-2xl md:text-3xl font-bold text-stone-900 leading-snug mb-3">Explaining AI Agents<br>Through Execution Traces</h1>
+    <p class="text-sm text-stone-500 mb-4 sans">Vittoria Vineis, Fabiano Veglianti, Lorenzo Antonelli, Claudia Di Carlo, Matteo Silvestri, Gabriele Tolomei</p>
+    <p class="text-base md:text-lg text-stone-700 leading-relaxed mb-6">AI 에이전트의 <strong>실행 흔적(execution trace)</strong>을 구조화된 보고서와 자연언어 설명으로 자동 변환하여, 멀티스텝 시스템의 프로세스 수준 투명성과 감사 가능성을 확보한다.</p>
+    <a href="https://arxiv.org/abs/2609.06063v1" target="_blank" rel="noopener" class="sans inline-flex items-center gap-1.5 text-sm text-violet-600 hover:text-violet-800 font-medium transition-colors">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      논문 원문 읽기 (arXiv)
+    </a>
+  </div>
+</header>
+
+<!-- Key Insight -->
+<section class="max-w-3xl mx-auto px-6 py-10">
+  <h2 class="text-lg font-bold text-stone-800 mb-5">핵심 인사이트</h2>
+  <div class="grid md:grid-cols-3 gap-4">
+    <div class="step-card p-5">
+      <div class="text-violet-600 mb-2">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <h3 class="font-semibold text-stone-800 mb-1 text-sm">기존 XAI의 한계</h3>
+      <p class="text-sm text-stone-600 leading-relaxed">전통적 XAI는 단일 예측에 초점. 멀티스텝·도구 호출 에이전트의 <em>프로세스 수준</em> 투명성을 설명하지 못한다.</p>
+    </div>
+    <div class="step-card p-5 border-violet-200">
+      <div class="text-violet-600 mb-2">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <h3 class="font-semibold text-stone-800 mb-1 text-sm">실행 흔적 기반 접근</h3>
+      <p class="text-sm text-stone-600 leading-relaxed">에이전트 내부 구조 접근 없이 <em>관찰 가능한 행동 시퀀스</em>만으로 사후 분석(post-hoc) 설명을 생성한다.</p>
+    </div>
+    <div class="step-card p-5">
+      <div class="text-violet-600 mb-2">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </div>
+      <h3 class="font-semibold text-stone-800 mb-1 text-sm">감사 가능한 리포트</h3>
+      <p class="text-sm text-stone-600 leading-relaxed">구조화 보고서 + 자연어 설명으로 미지원 주장·불합리 행동·증거 공백을 신뢰성 있게 식별한다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Interactive Demo -->
+<section class="max-w-3xl mx-auto px-6 pb-12">
+  <h2 class="text-lg font-bold text-stone-800 mb-2">인터랙티브 데모</h2>
+  <p class="text-sm text-stone-500 sans mb-6">시나리오를 선택하고 에이전트 실행 흔적을 분석해 보세요. 각 단계를 클릭하면 상세 분석이 표시됩니다.</p>
+
+  <!-- Scenario Selector -->
+  <div class="flex flex-wrap gap-2 mb-6" role="group" aria-label="시나리오 선택">
+    <button onclick="setScenario(0)" id="btn-0" class="sans text-sm px-4 py-1.5 rounded-full border font-medium transition-colors bg-violet-600 text-white border-violet-600">금융 심사</button>
+    <button onclick="setScenario(1)" id="btn-1" class="sans text-sm px-4 py-1.5 rounded-full border font-medium transition-colors bg-white text-stone-600 border-stone-300 hover:border-violet-400">의료 진단</button>
+    <button onclick="setScenario(2)" id="btn-2" class="sans text-sm px-4 py-1.5 rounded-full border font-medium transition-colors bg-white text-stone-600 border-stone-300 hover:border-violet-400">고객 서비스</button>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-5">
+    <!-- Left: Trace Visualization -->
+    <div class="step-card p-5">
+      <h3 class="sans font-semibold text-stone-700 text-sm mb-4">실행 흔적 (Execution Trace)</h3>
+      <div id="trace-container" class="space-y-2"></div>
+    </div>
+
+    <!-- Right: Analysis Report -->
+    <div class="step-card p-5">
+      <h3 class="sans font-semibold text-stone-700 text-sm mb-4">분석 리포트</h3>
+      <div id="report-container">
+        <p class="text-sm text-stone-400 italic">← 왼쪽 단계를 클릭하세요</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Natural Language Explanation -->
+  <div class="step-card p-5 mt-5">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="sans font-semibold text-stone-700 text-sm">자연어 설명 (Natural Language Explanation)</h3>
+      <button onclick="generateExplanation()" class="sans text-xs px-3 py-1.5 bg-violet-600 text-white rounded font-medium hover:bg-violet-700 transition-colors">설명 생성</button>
+    </div>
+    <div id="explanation-box" class="text-sm text-stone-600 leading-relaxed min-h-[60px]">
+      <span class="text-stone-400 italic">위 시나리오를 탐색한 후 설명 생성 버튼을 누르세요.</span>
+    </div>
+    <div id="evidence-tags" class="flex flex-wrap gap-2 mt-3 hidden"></div>
+  </div>
+</section>
+
+<!-- Business Analysis -->
+<section class="border-t border-stone-200 bg-white">
+  <div class="max-w-3xl mx-auto px-6 py-12">
+    <h2 class="text-lg font-bold text-stone-800 mb-6">비즈니스 분석</h2>
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="step-card p-5">
+        <h3 class="sans text-xs font-bold text-violet-600 uppercase tracking-wider mb-2">Wedge Pitch</h3>
+        <p class="text-sm text-stone-700 leading-relaxed">금융·의료·법률 규제 산업의 AI 에이전트 운영팀이 겪는 <strong>'블랙박스 감사 불가'</strong> 페인을 실행 트레이스 기반 자동 설명 리포트 SaaS로 해결한다.</p>
+      </div>
+      <div class="step-card p-5">
+        <h3 class="sans text-xs font-bold text-violet-600 uppercase tracking-wider mb-2">Target Customer</h3>
+        <p class="text-sm text-stone-700 leading-relaxed">금융사·보험사·병원의 <strong>AI/MLOps 팀 리더</strong> 및 컴플라이언스 담당자 — 규제기관 감사 대응을 위해 AI 에이전트 의사결정 근거를 문서화해야 하는 페르소나.</p>
+      </div>
+      <div class="step-card p-5">
+        <h3 class="sans text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">경쟁사</h3>
+        <div class="flex flex-wrap gap-2">
+          <span class="badge bg-stone-100 text-stone-600">Arthur AI</span>
+          <span class="badge bg-stone-100 text-stone-600">Fiddler AI</span>
+          <span class="badge bg-stone-100 text-stone-600">Arize AI</span>
+        </div>
+        <p class="text-xs text-stone-500 mt-2 leading-relaxed">기존 ML 모니터링 도구는 단일 예측 설명에 특화. 멀티스텝 에이전트 트레이스 분석 영역은 공백.</p>
+      </div>
+      <div class="step-card p-5">
+        <h3 class="sans text-xs font-bold text-pink-500 uppercase tracking-wider mb-2">Unicorn Scenario</h3>
+        <p class="text-sm text-stone-700 leading-relaxed">EU AI Act·NYDFS 규제 파동 → 금융·의료 전체 랜딩 → LangChain·AutoGen 네이티브 통합 → 플랫폼 수수료 모델. <strong>5년 내 ARR $200M, $1B+ 밸류에이션.</strong></p>
+        <div class="mt-2 sans text-xs text-stone-400">TAM: $12B · 총점: 22/30</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="border-t border-stone-200 bg-stone-50">
+  <div class="max-w-3xl mx-auto px-6 py-8 flex flex-col md:flex-row items-center justify-between gap-3 text-sm text-stone-400">
+    <span class="sans">Built with <a href="https://flux.ai.kr" target="_blank" rel="noopener" class="text-violet-600 hover:text-violet-800 font-medium">Flux Agent</a> · flux.ai.kr</span>
+    <a href="https://arxiv.org/abs/2609.06063v1" target="_blank" rel="noopener" class="sans text-stone-400 hover:text-stone-600 transition-colors">논문 원문 → arXiv:2609.06063</a>
+  </div>
+</footer>
+
+<script defer>
+const SCENARIOS = [
+  {
+    name: "금융 심사",
+    steps: [
+      { id: 0, type: "input", label: "대출 신청 수신", tool: "intake_tool", status: "ok", detail: "고객 ID #4821, 신청금액 5천만원, 신용등급 B2", evidence: "지원됨" },
+      { id: 1, type: "tool", label: "신용 점수 조회", tool: "credit_api", status: "ok", detail: "신용점수 682점 반환. API 응답시간 320ms", evidence: "지원됨" },
+      { id: 2, type: "tool", label: "부채비율 계산", tool: "dti_calculator", status: "warn", detail: "DTI 48.3% — 임계값(45%) 초과. 경고 플래그 생성됨", evidence: "주의" },
+      { id: 3, type: "reason", label: "심사 기준 적용", tool: "policy_engine", status: "ok", detail: "내부 정책 2.3조: DTI>45%인 경우 추가 서류 요청 필요", evidence: "지원됨" },
+      { id: 4, type: "tool", label: "추가 서류 요청", tool: "doc_request_tool", status: "ok", detail: "재직증명서·소득확인서 요청 발송 (이메일 #8821)", evidence: "지원됨" },
+      { id: 5, type: "output", label: "조건부 승인 결정", tool: "decision_engine", status: "gap", detail: "조건부 승인 처리. 단, 최종 금리 적용 근거 로그 누락", evidence: "증거 공백" }
+    ],
+    explanation: "에이전트는 대출 신청 수신 후 신용 점수 조회(682점)와 부채비율 계산(DTI 48.3%)을 순차적으로 수행했습니다. DTI가 내부 임계값(45%)을 초과함에 따라 정책 엔진이 추가 서류 요청을 트리거했으며, 이는 내부 정책 2.3조에 명시적으로 근거합니다. 조건부 승인 결정은 실행 흔적에서 확인되나, 최종 금리 산정 근거가 트레이스에 기록되지 않아 ⚠️ 증거 공백이 확인됩니다."
+  },
+  {
+    name: "의료 진단",
+    steps: [
+      { id: 0, type: "input", label: "환자 증상 입력", tool: "symptom_intake", status: "ok", detail: "발열 38.5°C, 기침 3일, 흉통 없음 입력됨", evidence: "지원됨" },
+      { id: 1, type: "tool", label: "감별진단 DB 조회", tool: "dx_database", status: "ok", detail: "독감·코로나·폐렴 3개 후보 반환. 신뢰도 순 정렬", evidence: "지원됨" },
+      { id: 2, type: "tool", label: "검사 권고 생성", tool: "test_recommender", status: "ok", detail: "PCR·혈액검사 권고. 가이드라인 CDC 2024 참조", evidence: "지원됨" },
+      { id: 3, type: "reason", label: "리스크 평가", tool: "risk_engine", status: "warn", detail: "고령 환자(72세) 폐렴 리스크 상승 플래그. 단, 기저질환 데이터 미입력", evidence: "주의" },
+      { id: 4, type: "output", label: "진료 권고 출력", tool: "report_gen", status: "gap", detail: "즉시 입원 권고. 입원 판단 임계값 기준 트레이스 미기록", evidence: "증거 공백" }
+    ],
+    explanation: "에이전트는 환자 증상을 수신 후 감별진단 데이터베이스를 조회하여 3개 후보 진단을 도출했습니다. 검사 권고는 CDC 2024 가이드라인에 명시적으로 근거하고 있어 추적 가능합니다. 그러나 리스크 평가 단계에서 기저질환 데이터가 입력되지 않아 ⚠️ 평가의 완결성이 떨어집니다. 즉시 입원 권고의 임계값 기준이 트레이스에 기록되지 않아 임상 감사 시 ⚠️ 증거 공백이 발생합니다."
+  },
+  {
+    name: "고객 서비스",
+    steps: [
+      { id: 0, type: "input", label: "고객 문의 수신", tool: "chat_intake", status: "ok", detail: "주문 #9921 환불 요청. 구매일 2025-01-03", evidence: "지원됨" },
+      { id: 1, type: "tool", label: "주문 이력 조회", tool: "order_lookup", status: "ok", detail: "주문 상태: 배송완료(2025-01-05). 환불 가능기간 14일 이내", evidence: "지원됨" },
+      { id: 2, type: "tool", label: "환불 정책 검색", tool: "policy_search", status: "ok", detail: "정책 §7.2: 수령 후 14일 이내 전액 환불 가능", evidence: "지원됨" },
+      { id: 3, type: "reason", label: "자격 판단", tool: "eligibility_engine", status: "ok", detail: "경과일 10일 < 14일. 환불 자격 충족 판정", evidence: "지원됨" },
+      { id: 4, type: "tool", label: "환불 처리", tool: "refund_api", status: "warn", detail: "환불 요청 전송. API 타임아웃 후 재시도 1회", evidence: "주의" },
+      { id: 5, type: "output", label: "완료 안내 발송", tool: "notification_tool", status: "ok", detail: "환불 완료 안내 문자 발송. 처리시간 총 4.2초", evidence: "지원됨" }
+    ],
+    explanation: "에이전트는 주문 이력 조회를 통해 배송 완료일(2025-01-05)을 확인하고, 환불 정책 §7.2(14일 이내 전액 환불)에 따라 자격을 판단했습니다. 경과일 10일로 환불 요청이 정책 범위 내에 있음이 트레이스에 명확히 기록되어 있습니다. 환불 API 호출 시 타임아웃 후 재시도가 발생했으나 최종 처리는 성공했으며, ⚠️ 재시도 로직의 조건이 별도 기록되어 있지 않아 오류 재발 시 디버깅이 어려울 수 있습니다."
+  }
+];
+
+let currentScenario = 0;
+let selectedStep = null;
+let exploredSteps = new Set();
+
+function setScenario(idx) {
+  currentScenario = idx;
+  selectedStep = null;
+  exploredSteps.clear();
+  [0,1,2].forEach(i => {
+    const btn = document.getElementById('btn-'+i);
+    if (i === idx) { btn.className = 'sans text-sm px-4 py-1.5 rounded-full border font-medium transition-colors bg-violet-600 text-white border-violet-600'; }
+    else { btn.className = 'sans text-sm px-4 py-1.5 rounded-full border font-medium transition-colors bg-white text-stone-600 border-stone-300 hover:border-violet-400'; }
+  });
+  renderTrace();
+  document.getElementById('report-container').innerHTML = '<p class="text-sm text-stone-400 italic">← 왼쪽 단계를 클릭하세요</p>';
+  document.getElementById('explanation-box').innerHTML = '<span class="text-stone-400 italic">위 시나리오를 탐색한 후 설명 생성 버튼을 누르세요.</span>';
+  document.getElementById('evidence-tags').className = 'flex flex-wrap gap-2 mt-3 hidden';
+}
+
+function renderTrace() {
+  const sc = SCENARIOS[currentScenario];
+  const container = document.getElementById('trace-container');
+  container.innerHTML = '';
+  sc.steps.forEach((step, i) => {
+    const isSelected = selectedStep === i;
+    const statusColor = { ok: 'bg-green-100 text-green-700', warn: 'bg-amber-100 text-amber-700', gap: 'bg-red-100 text-red-600' }[step.status];
+    const iconPath = { input: 'M12 5l7 7-7 7M5 12h14', tool: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z', reason: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', output: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' }[step.type];
+    const div = document.createElement('div');
+    div.className = `flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-all ${isSelected ? 'bg-violet-50 border border-violet-200' : 'hover:bg-stone-50 border border-transparent'}`;
+    div.setAttribute('role', 'button');
+    div.setAttribute('aria-label', `단계 ${i+1}: ${step.label}`);
+    div.innerHTML = `
+      <div class="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center ${isSelected ? 'bg-violet-100' : 'bg-stone-100'}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${isSelected ? '#7c3aed' : '#78716c'}" stroke-width="2" aria-hidden="true"><path d="${iconPath}"/></svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="sans text-xs font-semibold text-stone-500">STEP ${i+1}</span>
+          <span class="badge ${statusColor}">${step.evidence}</span>
+        </div>
+        <p class="text-sm font-medium text-stone-800 mt-0.5">${step.label}</p>
+        <p class="sans text-xs text-stone-400 mt-0.5">${step.tool}</p>
+      </div>
+    `;
+    div.onclick = () => selectStep(i);
+    if (i < sc.steps.length - 1) {
+      const connector = document.createElement('div');
+      connector.className = 'flex items-center ml-3.5';
+      connector.innerHTML = '<div class="w-px h-3 bg-stone-200"></div>';
+      container.appendChild(div);
+      container.appendChild(connector);
+    } else {
+      container.appendChild(div);
+    }
+  });
+}
+
+function selectStep(idx) {
+  selectedStep = idx;
+  exploredSteps.add(idx);
+  renderTrace();
+  const step = SCENARIOS[currentScenario].steps[idx];
+  const statusBg = { ok: 'bg-green-50 border-green-200', warn: 'bg-amber-50 border-amber-200', gap: 'bg-red-50 border-red-200' }[step.status];
+  const statusText = { ok: 'text-green-700', warn: 'text-amber-700', gap: 'text-red-600' }[step.status];
+  const statusLabel = { ok: '✓ 근거 지원됨', warn: '⚠ 주의 필요', gap: '✗ 증거 공백' }[step.status];
+  document.getElementById('report-container').innerHTML = `
+    <div class="fade-in space-y-3">
+      <div class="sans text-xs font-bold text-stone-400 uppercase tracking-wider">Step ${idx+1} · ${step.tool}</div>
+      <h4 class="font-semibold text-stone-800">${step.label}</h4>
+      <div class="border ${statusBg} rounded p-3">
+        <span class="sans text-xs font-semibold ${statusText}">${statusLabel}</span>
+        <p class="text-sm text-stone-600 mt-1 leading-relaxed">${step.detail}</p>
+      </div>
+      <div>
+        <p class="sans text-xs font-semibold text-stone-400 uppercase tracking-wider mb-1">분석 유형</p>
+        <p class="text-sm text-stone-600">${{ input: '입력 수신 — 외부 데이터 경계점', tool: '도구 호출 — 외부 API/시스템 상호작용', reason: '추론 단계 — 내부 정책/규칙 적용', output: '출력 생성 — 최종 결정 또는 액션' }[step.type]}</p>
+      </div>
+    </div>
+  `;
+}
+
+function generateExplanation() {
+  const sc = SCENARIOS[currentScenario];
+  const box = document.getElementById('explanation-box');
+  box.innerHTML = '<span class="text-stone-400 italic sans text-xs">분석 중...</span>';
+  setTimeout(() => {
+    box.innerHTML = `<div class="fade-in leading-relaxed">${sc.explanation}</div>`;
+    const tags = document.getElementById('evidence-tags');
+    const counts = { ok: 0, warn: 0, gap: 0 };
+    sc.steps.forEach(s => counts[s.status]++);
+    tags.innerHTML = `
+      <span class="badge bg-green-100 text-green-700">✓ 지원됨 ${counts.ok}건</span>
+      <span class="badge bg-amber-100 text-amber-700">⚠ 주의 ${counts.warn}건</span>
+      <span class="badge bg-red-100 text-red-600">✗ 증거 공백 ${counts.gap}건</span>
+      <span class="badge bg-stone-100 text-stone-500 sans">신뢰도 ${Math.round((counts.ok/(sc.steps.length))*100)}%</span>
+    `;
+    tags.className = 'flex flex-wrap gap-2 mt-3 fade-in';
+  }, 700);
+}
+
+setScenario(0);
+</script>
+</body>
+</html>
