@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sapien: 자율 AI 에이전트를 위한 상태 기반 정책 엔진</title>
+  <meta property="og:title" content="Sapien: Stateful Policy Engine for Autonomous AI Agents">
+  <meta property="og:description" content="AI 에이전트의 도구 호출을 상태 기반 정책으로 실시간 제어 — 공격의 62-95% 차단">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Noto+Serif+KR:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Source Serif 4', 'Noto Serif KR', Charter, Georgia, serif; background: #fafaf9; color: #292524; }
+    h1,h2,h3,h4,h5,h6,button,label,nav,.sans,.tag { font-family: 'Pretendard', 'Inter', system-ui, -apple-system, sans-serif; }
+    .fade-in { animation: fadeIn 0.5s ease; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+    .step-node { transition: all 0.3s ease; }
+    .allowed { stroke: #16a34a; fill: #f0fdf4; }
+    .blocked { stroke: #dc2626; fill: #fef2f2; }
+    .pending { stroke: #d97706; fill: #fffbeb; }
+    .neutral { stroke: #a8a29e; fill: #fafaf9; }
+    code { font-family: 'Fira Mono', 'Courier New', monospace; font-size: 0.82em; background: #f5f5f4; padding: 1px 5px; border-radius: 3px; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<!-- Hero -->
+<header class="border-b border-stone-200 bg-white">
+  <div class="max-w-3xl mx-auto px-6 py-12">
+    <div class="flex flex-wrap gap-2 mb-4">
+      <span class="tag text-xs font-semibold px-2 py-0.5 rounded border border-violet-200 text-violet-600 bg-violet-50">AI Security</span>
+      <span class="tag text-xs font-semibold px-2 py-0.5 rounded border border-stone-200 text-stone-500 bg-stone-50">arXiv 2610.00797</span>
+      <span class="tag text-xs font-semibold px-2 py-0.5 rounded border border-pink-200 text-pink-500 bg-pink-50">주간 최고점 22/30</span>
+    </div>
+    <h1 class="text-3xl md:text-4xl font-bold text-stone-900 mb-2 leading-tight">Sapien</h1>
+    <p class="text-xl text-stone-500 sans font-medium mb-4">A Stateful Policy Engine for Autonomous AI Agents</p>
+    <p class="text-base text-stone-600 leading-relaxed mb-4">
+      자율 AI 에이전트가 수행하는 도구 호출(tool call)을 <strong>이전 행동 상태</strong>에 따라 실시간으로 허용·차단하는 정책 엔진. 제약 없는 에이전트 대비 수 퍼센트 내 유틸리티 손실로 공격의 62–95%를 차단합니다.
+    </p>
+    <div class="flex flex-wrap gap-3 text-sm sans">
+      <span class="text-stone-500">Corinn Tiffany · Wen Zhang · Eugene Bagdasarian · Lillian Tsai</span>
+      <a href="https://arxiv.org/abs/2610.00797v1" target="_blank" class="text-violet-600 hover:underline font-medium">논문 원문 →</a>
+    </div>
+  </div>
+</header>
+
+<!-- Key Insight -->
+<section class="max-w-3xl mx-auto px-6 py-10">
+  <h2 class="text-xl font-bold text-stone-800 mb-5">핵심 인사이트</h2>
+  <div class="grid md:grid-cols-3 gap-4">
+    <div class="border border-stone-200 rounded-lg p-5 bg-white">
+      <div class="text-2xl font-bold text-violet-600 sans mb-1">상태 인식</div>
+      <p class="text-sm text-stone-600 leading-relaxed">정책이 에이전트의 <em>이전 행동</em>을 기억해, 동일한 도구 호출도 문맥에 따라 허용/차단이 달라집니다.</p>
+    </div>
+    <div class="border border-stone-200 rounded-lg p-5 bg-white">
+      <div class="text-2xl font-bold text-pink-500 sans mb-1">62–95% 차단</div>
+      <p class="text-sm text-stone-600 leading-relaxed">에이전트가 완전히 탈취되어도 Sapien 정책이 실제 피해 공격의 대다수를 원천 차단합니다.</p>
+    </div>
+    <div class="border border-stone-200 rounded-lg p-5 bg-white">
+      <div class="text-2xl font-bold text-stone-700 sans mb-1">&lt;몇 % 손실</div>
+      <p class="text-sm text-stone-600 leading-relaxed">정상 작업 유틸리티는 거의 그대로 유지합니다. 보안과 기능의 균형점을 수학적으로 달성합니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Interactive Demo -->
+<section class="max-w-3xl mx-auto px-6 pb-12">
+  <h2 class="text-xl font-bold text-stone-800 mb-2">인터랙티브 데모</h2>
+  <p class="text-sm text-stone-500 sans mb-6">시나리오를 선택하고, 도구 호출을 순서대로 실행해보세요. Sapien 정책 엔진이 각 단계에서 상태를 추적해 허용 여부를 결정합니다.</p>
+
+  <div class="border border-stone-200 rounded-xl bg-white overflow-hidden">
+    <!-- Scenario selector -->
+    <div class="border-b border-stone-100 p-4 flex flex-wrap gap-2 items-center">
+      <span class="sans text-xs font-semibold text-stone-400 mr-1">시나리오:</span>
+      <button id="btn-email" onclick="loadScenario('email')" class="sans text-xs px-3 py-1.5 rounded-full border border-violet-300 bg-violet-50 text-violet-700 font-semibold">📧 이메일 전송</button>
+      <button id="btn-bank" onclick="loadScenario('bank')" class="sans text-xs px-3 py-1.5 rounded-full border border-stone-200 text-stone-500 font-semibold">🏦 금융 이체</button>
+      <button id="btn-file" onclick="loadScenario('file')" class="sans text-xs px-3 py-1.5 rounded-full border border-stone-200 text-stone-500 font-semibold">📁 파일 접근</button>
+    </div>
+
+    <div class="p-5">
+      <!-- Policy display -->
+      <div class="mb-5 p-3 bg-stone-50 rounded-lg border border-stone-100">
+        <div class="sans text-xs font-semibold text-stone-400 mb-1">Sapien 정책 (정규표현식 + 상태 조건)</div>
+        <code id="policy-display" class="text-xs text-stone-700 break-all"></code>
+      </div>
+
+      <!-- State machine SVG -->
+      <div class="mb-5 overflow-x-auto">
+        <svg id="state-svg" width="640" height="130" viewBox="0 0 640 130" class="block mx-auto max-w-full"></svg>
+      </div>
+
+      <!-- Tool call buttons -->
+      <div class="mb-4">
+        <div class="sans text-xs font-semibold text-stone-400 mb-2">도구 호출 실행</div>
+        <div id="tool-buttons" class="flex flex-wrap gap-2"></div>
+      </div>
+
+      <!-- Log -->
+      <div class="mb-4">
+        <div class="sans text-xs font-semibold text-stone-400 mb-2">실행 로그</div>
+        <div id="exec-log" class="bg-stone-50 rounded-lg border border-stone-100 p-3 min-h-16 max-h-40 overflow-y-auto text-xs space-y-1 font-mono"></div>
+      </div>
+
+      <!-- Status bar -->
+      <div class="flex items-center justify-between">
+        <div id="status-bar" class="sans text-sm font-semibold text-stone-500">시나리오를 선택하고 도구를 실행하세요</div>
+        <button onclick="resetDemo()" class="sans text-xs px-3 py-1.5 rounded border border-stone-200 text-stone-500 hover:border-stone-300 hover:text-stone-700 transition-colors">↺ 초기화</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Explanation -->
+  <div class="mt-6 prose prose-stone max-w-none">
+    <h3 class="sans text-base font-bold text-stone-800 mb-2">어떻게 작동하나요?</h3>
+    <p class="text-sm text-stone-600 leading-relaxed mb-2">
+      Sapien은 태스크가 시작될 때 LLM을 활용해 <strong>상태 기반 정책</strong>을 자동 생성합니다. 이 정책은 정규표현식을 확장한 형태로, 에이전트가 어떤 도구를 어떤 순서로 호출해야 하는지를 명세합니다.
+    </p>
+    <p class="text-sm text-stone-600 leading-relaxed">
+      예를 들어 이메일 전송 태스크에서 <code>search_contacts</code>를 호출하기 전에 <code>send_email</code>을 직접 호출하면 차단됩니다. 에이전트가 프롬프트 인젝션에 의해 탈취되어도, 정책이 허용하지 않는 도구 순서는 실행 자체가 불가능합니다.
+    </p>
+  </div>
+</section>
+
+<!-- Business Analysis -->
+<section class="border-t border-stone-100 bg-stone-50">
+  <div class="max-w-3xl mx-auto px-6 py-10">
+    <h2 class="text-xl font-bold text-stone-800 mb-5">비즈니스 분석</h2>
+    <div class="grid md:grid-cols-2 gap-4">
+
+      <div class="border border-stone-200 rounded-lg p-5 bg-white md:col-span-2">
+        <div class="sans text-xs font-semibold text-violet-500 mb-1">WEDGE PITCH</div>
+        <p class="text-sm text-stone-700 leading-relaxed">엔터프라이즈 AI 에이전트를 운영하는 기업의 보안·컴플라이언스 리스크를 <strong>상태 기반 정책 엔진</strong>으로 실시간 차단한다. 정적 allowlist는 다단계 공격에 무력하지만, Sapien은 행동 순서 자체를 정책화한다.</p>
+      </div>
+
+      <div class="border border-stone-200 rounded-lg p-5 bg-white">
+        <div class="sans text-xs font-semibold text-stone-400 mb-2">타겟 고객</div>
+        <p class="text-sm text-stone-600 leading-relaxed">AI 에이전트 자동화를 도입한 <strong>금융·의료·법무</strong> 엔터프라이즈의 CISO 및 AI Ops팀. 연 매출 $100M+, 규제 컴플라이언스 의무 보유 기업.</p>
+      </div>
+
+      <div class="border border-stone-200 rounded-lg p-5 bg-white">
+        <div class="sans text-xs font-semibold text-stone-400 mb-2">TAM · 경쟁사</div>
+        <p class="text-sm text-stone-600 leading-relaxed mb-2"><span class="font-semibold text-stone-700">TAM $12B</span> — AI 에이전트 보안 시장</p>
+        <div class="flex flex-wrap gap-1">
+          <span class="tag text-xs px-2 py-0.5 rounded bg-stone-100 text-stone-500">Lakera Guard</span>
+          <span class="tag text-xs px-2 py-0.5 rounded bg-stone-100 text-stone-500">Protect AI</span>
+          <span class="tag text-xs px-2 py-0.5 rounded bg-stone-100 text-stone-500">Robust Intelligence</span>
+        </div>
+      </div>
+
+      <div class="border border-stone-200 rounded-lg p-5 bg-white md:col-span-2">
+        <div class="sans text-xs font-semibold text-pink-500 mb-1">유니콘 시나리오</div>
+        <p class="text-sm text-stone-600 leading-relaxed">AI 에이전트 폭증에 따른 보안 의무화 규제를 등에 업고, LangChain·Vertex AI 등 주요 오케스트레이션 플랫폼에 <strong>정책 엔진 SDK</strong>로 임베드. 에이전트당 과금 모델로 5년 내 <span class="font-bold text-stone-800">$1B ARR</span> 달성.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="border-t border-stone-200 bg-white">
+  <div class="max-w-3xl mx-auto px-6 py-6 flex flex-wrap justify-between items-center gap-3 text-xs text-stone-400 sans">
+    <div>Built with <a href="https://flux.ai.kr" target="_blank" class="text-violet-500 hover:underline font-semibold">Flux Agent</a> · <a href="https://flux.ai.kr" target="_blank" class="hover:underline">flux.ai.kr</a></div>
+    <a href="https://arxiv.org/abs/2610.00797v1" target="_blank" class="text-violet-500 hover:underline">논문 원문 arXiv:2610.00797 →</a>
+  </div>
+</footer>
+
+<script>
+const SCENARIOS = {
+  email: {
+    policy: 'read_inbox → search_contacts? → draft_email → send_email  [state: recipient ∈ known_contacts]',
+    tools: [
+      { id:'read_inbox', label:'📬 read_inbox', desc:'받은편지함 읽기' },
+      { id:'search_contacts', label:'🔍 search_contacts', desc:'연락처 검색' },
+      { id:'draft_email', label:'✏️ draft_email', desc:'이메일 초안 작성' },
+      { id:'send_email', label:'📤 send_email', desc:'이메일 전송' },
+      { id:'delete_all', label:'🗑️ delete_all [공격]', desc:'전체 삭제 (공격)', attack:true },
+      { id:'forward_all', label:'📡 forward_all [공격]', desc:'외부 포워딩 (공격)', attack:true }
+    ],
+    states: ['START','INBOX_READ','DRAFTED','SENT'],
+    transitions: {
+      START:      { read_inbox:'INBOX_READ' },
+      INBOX_READ: { search_contacts:'INBOX_READ', draft_email:'DRAFTED' },
+      DRAFTED:    { draft_email:'DRAFTED', send_email:'SENT' },
+      SENT:       {}
+    },
+    stateLabels: ['시작','편지함 열람','초안 작성','전송 완료']
+  },
+  bank: {
+    policy: 'verify_identity → check_balance → [confirm_transfer → execute_transfer]  [state: amount ≤ limit, recipient ∈ whitelist]',
+    tools: [
+      { id:'verify_identity', label:'🔐 verify_identity', desc:'신원 확인' },
+      { id:'check_balance', label:'💰 check_balance', desc:'잔액 조회' },
+      { id:'confirm_transfer', label:'✅ confirm_transfer', desc:'이체 확인' },
+      { id:'execute_transfer', label:'🏦 execute_transfer', desc:'이체 실행' },
+      { id:'drain_account', label:'💸 drain_account [공격]', desc:'계좌 탈취 (공격)', attack:true },
+      { id:'modify_limit', label:'⚙️ modify_limit [공격]', desc:'한도 변조 (공격)', attack:true }
+    ],
+    states: ['START','ID_OK','BALANCE_OK','CONFIRMED','DONE'],
+    transitions: {
+      START:      { verify_identity:'ID_OK' },
+      ID_OK:      { check_balance:'BALANCE_OK' },
+      BALANCE_OK: { confirm_transfer:'CONFIRMED' },
+      CONFIRMED:  { execute_transfer:'DONE' },
+      DONE:       {}
+    },
+    stateLabels: ['시작','신원확인','잔액조회','이체확인','완료']
+  },
+  file: {
+    policy: 'list_files → read_file+ → [write_file | export_file]  [state: path ∈ allowed_dirs]',
+    tools: [
+      { id:'list_files', label:'📂 list_files', desc:'파일 목록 조회' },
+      { id:'read_file', label:'📄 read_file', desc:'파일 읽기' },
+      { id:'write_file', label:'💾 write_file', desc:'파일 쓰기' },
+      { id:'export_file', label:'📤 export_file', desc:'파일 내보내기' },
+      { id:'exec_shell', label:'💀 exec_shell [공격]', desc:'쉘 실행 (공격)', attack:true },
+      { id:'exfiltrate', label:'🕵️ exfiltrate [공격]', desc:'데이터 유출 (공격)', attack:true }
+    ],
+    states: ['START','LISTED','READ','WRITTEN'],
+    transitions: {
+      START:   { list_files:'LISTED' },
+      LISTED:  { read_file:'READ', list_files:'LISTED' },
+      READ:    { read_file:'READ', write_file:'WRITTEN', export_file:'WRITTEN' },
+      WRITTEN: { read_file:'READ' }
+    },
+    stateLabels: ['시작','목록조회','파일읽기','작업완료']
+  }
+};
+
+let current = null;
+let currentState = null;
+let log = [];
+
+function loadScenario(name) {
+  current = name;
+  currentState = SCENARIOS[name].states[0];
+  log = [];
+  ['email','bank','file'].forEach(n => {
+    const b = document.getElementById('btn-'+n);
+    b.className = n===name
+      ? 'sans text-xs px-3 py-1.5 rounded-full border border-violet-300 bg-violet-50 text-violet-700 font-semibold'
+      : 'sans text-xs px-3 py-1.5 rounded-full border border-stone-200 text-stone-500 font-semibold';
+  });
+  document.getElementById('policy-display').textContent = SCENARIOS[name].policy;
+  renderTools();
+  renderSVG();
+  renderLog();
+  document.getElementById('status-bar').textContent = '정책 로드됨 — 도구를 순서대로 실행해보세요';
+  document.getElementById('status-bar').className = 'sans text-sm font-semibold text-stone-500';
+}
+
+function callTool(toolId) {
+  if (!current) return;
+  const sc = SCENARIOS[current];
+  const tool = sc.tools.find(t=>t.id===toolId);
+  const transitions = sc.transitions[currentState] || {};
+  const nextState = transitions[toolId];
+  let allowed = !tool.attack && !!nextState;
+  // attack tools always blocked
+  if (tool.attack) allowed = false;
+  // unknown tool in current state = blocked
+  if (!tool.attack && !nextState) allowed = false;
+
+  const ts = new Date().toLocaleTimeString('ko-KR',{hour12:false});
+  const icon = allowed ? '✅' : '🚫';
+  const word = allowed ? 'ALLOWED' : 'BLOCKED';
+  log.push(`${ts} ${icon} [${word}] ${toolId}() — 상태: ${currentState}${allowed?' → '+nextState:''}`);
+
+  if (allowed) currentState = nextState;
+  renderSVG();
+  renderLog();
+
+  const sb = document.getElementById('status-bar');
+  if (allowed) {
+    sb.textContent = `✅ ${tool.desc} — 허용됨 (상태: ${currentState})`;
+    sb.className = 'sans text-sm font-semibold text-green-600';
+    if (currentState === sc.states[sc.states.length-1]) {
+      sb.textContent = '🎉 태스크 완료! 정책이 모든 단계를 안전하게 통과했습니다.';
+      sb.className = 'sans text-sm font-semibold text-violet-600';
+    }
+  } else {
+    sb.textContent = `🚫 ${tool.desc} — 차단됨 (현재 상태에서 허용되지 않음)`;
+    sb.className = 'sans text-sm font-semibold text-red-600';
+  }
+}
+
+function renderTools() {
+  const sc = SCENARIOS[current];
+  const container = document.getElementById('tool-buttons');
+  container.innerHTML = '';
+  sc.tools.forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = t.attack
+      ? 'sans text-xs px-3 py-1.5 rounded border border-red-200 bg-red-50 text-red-600 font-medium hover:border-red-300 transition-colors'
+      : 'sans text-xs px-3 py-1.5 rounded border border-stone-200 bg-white text-stone-700 font-medium hover:border-violet-300 hover:text-violet-700 transition-colors';
+    btn.textContent = t.label;
+    btn.title = t.desc;
+    btn.onclick = () => callTool(t.id);
+    container.appendChild(btn);
+  });
+}
+
+function renderSVG() {
+  if (!current) return;
+  const sc = SCENARIOS[current];
+  const states = sc.states;
+  const svg = document.getElementById('state-svg');
+  const n = states.length;
+  const W = 640, H = 130;
+  const nodeR = 28;
+  const spacing = Math.min(140, (W - 40) / (n));
+  const startX = (W - spacing*(n-1)) / 2;
+  const cy = 70;
+
+  let html = '';
+  // Draw edges first
+  for (let i=0;i<n-1;i++) {
+    const x1 = startX + i*spacing + nodeR;
+    const x2 = startX + (i+1)*spacing - nodeR;
+    html += `<line x1="${x1}" y1="${cy}" x2="${x2}" y2="${cy}" stroke="#d6d3d1" stroke-width="2" marker-end="url(#arr)"/>`;
+  }
+  // Arrow marker
+  html = `<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#d6d3d1"/></marker></defs>` + html;
+
+  // Draw nodes
+  states.forEach((s,i) => {
+    const cx = startX + i*spacing;
+    const isCurrent = s === currentState;
+    const isPast = sc.states.indexOf(currentState) > i;
+    let stroke = '#a8a29e', fill = '#fafaf9', textCol = '#78716c';
+    if (isPast) { stroke='#16a34a'; fill='#f0fdf4'; textCol='#15803d'; }
+    if (isCurrent) { stroke='#7c3aed'; fill='#ede9fe'; textCol='#6d28d9'; }
+    const sw = isCurrent ? 2.5 : 1.5;
+    html += `<circle cx="${cx}" cy="${cy}" r="${nodeR}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
+    const label = sc.stateLabels[i];
+    const words = label.length > 4 ? [label.slice(0,Math.ceil(label.length/2)), label.slice(Math.ceil(label.length/2))] : [label];
+    words.forEach((w,wi)=>{
+      const dy = words.length===1 ? cy+4 : cy - 5 + wi*14;
+      html += `<text x="${cx}" y="${dy}" text-anchor="middle" font-size="9" font-family="Pretendard,Inter,sans-serif" fill="${textCol}" font-weight="${isCurrent?'700':'500'}">${w}</text>`;
+    });
+    if (isCurrent) html += `<circle cx="${cx}" cy="${cy}" r="${nodeR+4}" fill="none" stroke="#7c3aed" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>`;
+  });
+
+  svg.innerHTML = html;
+}
+
+function renderLog() {
+  const el = document.getElementById('exec-log');
+  if (log.length===0) { el.innerHTML = '<span class="text-stone-400">아직 실행된 도구가 없습니다.</span>'; return; }
+  el.innerHTML = log.map(l=>{
+    const col = l.includes('ALLOWED') ? 'text-green-700' : 'text-red-600';
+    return `<div class="${col} fade-in">${l}</div>`;
+  }).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+function resetDemo() {
+  if (!current) return;
+  loadScenario(current);
+}
+
+// Init
+loadScenario('email');
+</script>
+</body>
+</html>
