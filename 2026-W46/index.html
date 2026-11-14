@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shadow AI Detector — 섀도우 AI 탐지 인터랙티브 데모</title>
+  <meta property="og:title" content="Shadow AI Detector: 기업 엔드포인트의 미승인 LLM 에이전트 탐지">
+  <meta property="og:description" content="섀도우 AI가 어떻게 기하급수적으로 증가하며, 어떻게 탐지할 수 있는지 인터랙티브하게 시연합니다.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Noto+Serif+KR:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Source Serif 4', 'Noto Serif KR', Charter, Georgia, serif; background: #fafaf9; color: #1c1917; }
+    h1,h2,h3,h4,h5,h6,button,label,nav,.sans,.tag { font-family: 'Pretendard', 'Inter', system-ui, -apple-system, sans-serif; }
+    .accent { color: #7c3aed; }
+    .tag { display: inline-block; font-size: 0.72rem; font-weight: 600; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.04em; text-transform: uppercase; }
+    .card { background: #fff; border: 1px solid #e7e5e4; border-radius: 10px; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    .fade-in { animation: fadeIn 0.5s ease both; }
+    canvas { display: block; }
+    .slider-label { font-family: 'Pretendard','Inter',sans-serif; font-size:0.82rem; color:#57534e; }
+    input[type=range] { accent-color: #7c3aed; }
+    .layer-bar { transition: width 0.4s ease; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<!-- Hero -->
+<header class="max-w-3xl mx-auto px-6 pt-16 pb-10">
+  <nav class="flex items-center gap-3 mb-8">
+    <span class="tag" style="background:#f3f0ff;color:#7c3aed;">arXiv 2611.12377</span>
+    <span class="tag" style="background:#fdf2f8;color:#db2777;">Security · AI Governance</span>
+  </nav>
+  <h1 class="text-3xl sm:text-4xl font-bold leading-tight mb-3" style="letter-spacing:-0.02em;">Detecting Shadow AI</h1>
+  <p class="text-lg text-stone-500 sans mb-4" style="font-family:'Pretendard','Inter',sans-serif;">Jeremy Canale &amp; Fabien Soulis &nbsp;·&nbsp; <a href="https://arxiv.org/abs/2611.12377v1" class="underline accent hover:text-pink-500" target="_blank" rel="noopener">arXiv →</a></p>
+  <p class="text-xl leading-relaxed text-stone-700">AI 에이전트가 스스로 도구를 만들고 복제함으로써 미승인 섀도우 IT는 <strong>기하급수적으로</strong> 증가한다 — 거버넌스의 첫 단계는 <em>탐지</em>다.</p>
+</header>
+
+<!-- Key Insights -->
+<section class="max-w-3xl mx-auto px-6 pb-10">
+  <h2 class="text-xl font-bold mb-4">핵심 인사이트</h2>
+  <div class="grid sm:grid-cols-3 gap-4">
+    <div class="card p-5">
+      <div class="text-2xl mb-2">📈</div>
+      <h3 class="font-bold text-sm mb-1">지수적 증가</h3>
+      <p class="text-sm text-stone-600 leading-relaxed">에이전트가 아티팩트를 재생산하는 속도가 조직이 제거하는 속도를 초과하면 섀도우 AI는 폭발적으로 늘어난다.</p>
+    </div>
+    <div class="card p-5">
+      <div class="text-2xl mb-2">🔍</div>
+      <h3 class="font-bold text-sm mb-1">행동만으론 부족</h3>
+      <p class="text-sm text-stone-600 leading-relaxed">프로세스·네트워크 구조만으로는 AI 에이전트와 일반 프로그램을 구별할 수 없다. 원격 서비스 신원 연결이 필수.</p>
+    </div>
+    <div class="card p-5">
+      <div class="text-2xl mb-2">🛡️</div>
+      <h3 class="font-bold text-sm mb-1">9클래스 × 6레이어</h3>
+      <p class="text-sm text-stone-600 leading-relaxed">9가지 에이전트 유형과 6개 엔드포인트 레이어를 교차 분석해야 완전한 탐지 커버리지를 확보할 수 있다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Interactive Demo -->
+<section class="max-w-3xl mx-auto px-6 pb-10">
+  <h2 class="text-xl font-bold mb-1">인터랙티브 데모</h2>
+  <p class="text-stone-500 text-sm mb-6" style="font-family:'Pretendard','Inter',sans-serif;">파라미터를 조절해 섀도우 AI의 성장 모델과 탐지 방법론을 직접 탐색해 보세요.</p>
+
+  <!-- Tab -->
+  <div class="flex gap-2 mb-6">
+    <button onclick="showTab('growth')" id="tab-growth" class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#7c3aed;color:#fff;">성장 모델</button>
+    <button onclick="showTab('detect')" id="tab-detect" class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#f5f5f4;color:#57534e;">탐지 레이어</button>
+    <button onclick="showTab('agent')" id="tab-agent" class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#f5f5f4;color:#57534e;">에이전트 분류</button>
+  </div>
+
+  <!-- Growth Model Tab -->
+  <div id="pane-growth" class="card p-6 fade-in">
+    <h3 class="font-bold mb-1">섀도우 AI 복리 성장 모델</h3>
+    <p class="text-sm text-stone-500 mb-5" style="font-family:'Pretendard','Inter',sans-serif;">에이전트 재생산율(α)과 조직 제거율(β)의 차이가 임계점을 넘으면 성장이 폭발적으로 전환됩니다.</p>
+    <div class="grid sm:grid-cols-2 gap-6 mb-5">
+      <div>
+        <label class="slider-label block mb-1">재생산율 α = <span id="val-alpha">1.3</span>x/월</label>
+        <input type="range" min="1.0" max="3.0" step="0.1" value="1.3" id="sl-alpha" class="w-full" oninput="updateGrowth()">
+      </div>
+      <div>
+        <label class="slider-label block mb-1">제거율 β = <span id="val-beta">1.1</span>x/월</label>
+        <input type="range" min="1.0" max="3.0" step="0.1" value="1.1" id="sl-beta" class="w-full" oninput="updateGrowth()">
+      </div>
+    </div>
+    <div id="growth-status" class="mb-4 text-sm font-semibold sans px-3 py-2 rounded-lg inline-block"></div>
+    <canvas id="growthChart" height="220" style="width:100%;max-width:100%;"></canvas>
+    <p class="text-xs text-stone-400 mt-3" style="font-family:'Pretendard','Inter',sans-serif;">초기 에이전트 수 = 10, 12개월 시뮬레이션. α &gt; β 일 때 지수적 성장.</p>
+  </div>
+
+  <!-- Detection Layer Tab -->
+  <div id="pane-detect" class="card p-6 fade-in hidden">
+    <h3 class="font-bold mb-1">탐지 레이어별 커버리지</h3>
+    <p class="text-sm text-stone-500 mb-5" style="font-family:'Pretendard','Inter',sans-serif;">활성화할 탐지 레이어를 선택하면 전체 탐지율이 어떻게 변하는지 확인하세요.</p>
+    <div id="layer-controls" class="space-y-3 mb-6"></div>
+    <div class="card p-4" style="background:#fafaf9;">
+      <div class="flex items-center justify-between mb-3">
+        <span class="font-bold text-sm">종합 탐지율</span>
+        <span id="total-coverage" class="font-bold text-lg accent">0%</span>
+      </div>
+      <div class="w-full bg-stone-100 rounded-full h-3 overflow-hidden">
+        <div id="total-bar" class="h-3 rounded-full layer-bar" style="width:0%;background:linear-gradient(90deg,#7c3aed,#ec4899);"></div>
+      </div>
+      <p id="coverage-msg" class="text-xs text-stone-400 mt-2" style="font-family:'Pretendard','Inter',sans-serif;"></p>
+    </div>
+  </div>
+
+  <!-- Agent Taxonomy Tab -->
+  <div id="pane-agent" class="card p-6 fade-in hidden">
+    <h3 class="font-bold mb-1">에이전트 9클래스 분류 체계</h3>
+    <p class="text-sm text-stone-500 mb-5" style="font-family:'Pretendard','Inter',sans-serif;">클래스를 클릭해 탐지 난이도와 주요 특징을 확인하세요.</p>
+    <div class="grid grid-cols-3 gap-2 mb-5" id="agent-grid"></div>
+    <div id="agent-detail" class="card p-4" style="background:#fafaf9;min-height:80px;">
+      <p class="text-sm text-stone-400 italic">← 에이전트 클래스를 선택하세요</p>
+    </div>
+  </div>
+</section>
+
+<!-- Business Analysis -->
+<section class="max-w-3xl mx-auto px-6 pb-10">
+  <h2 class="text-xl font-bold mb-4">비즈니스 분석</h2>
+  <div class="grid sm:grid-cols-2 gap-4">
+    <div class="card p-5">
+      <span class="tag mb-3" style="background:#f3f0ff;color:#7c3aed;">Wedge Pitch</span>
+      <p class="text-sm leading-relaxed mt-2 text-stone-700">CISO·IT보안팀의 미승인 AI 에이전트 확산 리스크를 엔드포인트 실시간 탐지 SaaS로 차단한다. 직원이 무단 설치한 LLM 에이전트·MCP 서버로 인한 데이터 유출·컴플라이언스 위반을 사전에 감지한다.</p>
+    </div>
+    <div class="card p-5">
+      <span class="tag mb-3" style="background:#fdf2f8;color:#db2777;">Target Customer</span>
+      <p class="text-sm leading-relaxed mt-2 text-stone-700">Fortune 2000 기업의 CISO 및 IT거버넌스 팀. 직원들의 무단 LLM 에이전트 설치로 데이터 유출·컴플라이언스 위반이 우려되는 보안 책임자.</p>
+    </div>
+    <div class="card p-5">
+      <span class="tag mb-3" style="background:#f0fdf4;color:#16a34a;">TAM &amp; Opportunity</span>
+      <p class="text-sm leading-relaxed mt-2 text-stone-700">글로벌 TAM <strong>$120억</strong> 규모. 기업당 $50K–200K ARR, 5,000개 엔터프라이즈 고객 확보 시 AI 컴플라이언스 Suite로 <strong>$1B+ 기업가치</strong> 달성 가능.</p>
+    </div>
+    <div class="card p-5">
+      <span class="tag mb-3" style="background:#fff7ed;color:#c2410c;">Competitors</span>
+      <p class="text-sm leading-relaxed mt-2 text-stone-700">Netskope, Zscaler, Palo Alto Prisma 등 기존 CASB/SASE 솔루션은 AI 에이전트 특화 탐지 미흡. <strong>Shadow AI 전문 탐지</strong>로 차별화 가능.</p>
+    </div>
+  </div>
+  <div class="card p-5 mt-4" style="border-left:3px solid #7c3aed;">
+    <span class="tag mb-2" style="background:#f3f0ff;color:#7c3aed;">Unicorn Scenario</span>
+    <p class="text-sm leading-relaxed mt-2 text-stone-700">Shadow AI 탐지 SaaS → 엔드포인트 거버넌스 플랫폼 → AI 컴플라이언스 Suite 순차 확장. AI 에이전트 채택이 가속화될수록 규제 수요와 함께 시장이 동반 성장하는 구조.</p>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="max-w-3xl mx-auto px-6 py-10 border-t border-stone-200 mt-4">
+  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+    <div>
+      <p class="text-sm text-stone-500">Built with <a href="https://flux.ai.kr" class="accent underline font-semibold hover:text-pink-500" target="_blank" rel="noopener">Flux Agent</a> · <a href="https://flux.ai.kr" class="text-stone-400 hover:text-stone-600" target="_blank" rel="noopener">flux.ai.kr</a></p>
+      <p class="text-xs text-stone-400 mt-1">논문 원문: <a href="https://arxiv.org/abs/2611.12377v1" class="underline hover:text-violet-600" target="_blank" rel="noopener">arxiv.org/abs/2611.12377v1</a></p>
+    </div>
+    <div class="text-xs text-stone-300 sans">arXiv 2611.12377 · Canale &amp; Soulis</div>
+  </div>
+</footer>
+
+<script defer>
+// ── Tab system ──
+function showTab(id) {
+  ['growth','detect','agent'].forEach(t => {
+    document.getElementById('pane-'+t).classList.toggle('hidden', t!==id);
+    const btn = document.getElementById('tab-'+t);
+    if(t===id){ btn.style.background='#7c3aed'; btn.style.color='#fff'; }
+    else { btn.style.background='#f5f5f4'; btn.style.color='#57534e'; }
+  });
+}
+
+// ── Growth Model ──
+function lerp(a,b,t){ return a+(b-a)*t; }
+function updateGrowth() {
+  const alpha = parseFloat(document.getElementById('sl-alpha').value);
+  const beta  = parseFloat(document.getElementById('sl-beta').value);
+  document.getElementById('val-alpha').textContent = alpha.toFixed(1);
+  document.getElementById('val-beta').textContent  = beta.toFixed(1);
+  const net = alpha / beta;
+  const statusEl = document.getElementById('growth-status');
+  if(net > 1.05) {
+    statusEl.textContent = '⚠️ 지수적 성장 — 거버넌스 위기 임박';
+    statusEl.style.background='#fff1f2'; statusEl.style.color='#be123c';
+  } else if(net > 0.95) {
+    statusEl.textContent = '⚡ 경계 구간 — 모니터링 강화 필요';
+    statusEl.style.background='#fffbeb'; statusEl.style.color='#92400e';
+  } else {
+    statusEl.textContent = '✅ 안정적 — 제거율이 재생산율 초과';
+    statusEl.style.background='#f0fdf4'; statusEl.style.color='#15803d';
+  }
+  drawGrowth(alpha, beta);
+}
+
+function drawGrowth(alpha, beta) {
+  const canvas = document.getElementById('growthChart');
+  const dpr = window.devicePixelRatio||1;
+  const W = canvas.parentElement.clientWidth - 48;
+  canvas.style.width = W+'px'; canvas.style.height = '220px';
+  canvas.width = W*dpr; canvas.height = 220*dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,W,220);
+
+  const months = 12, init = 10;
+  const dataA = [], dataB = [];
+  let vA = init, vB = init;
+  for(let m=0;m<=months;m++){
+    dataA.push(Math.min(vA,2000));
+    dataB.push(Math.min(vB,2000));
+    vA *= alpha;
+    vB *= (beta > alpha ? beta : alpha*0.75);
+  }
+  const maxV = Math.max(...dataA,...dataB);
+  const pad = {t:16,r:16,b:36,l:52};
+  const cw = W-pad.l-pad.r, ch = 220-pad.t-pad.b;
+
+  ctx.strokeStyle='#e7e5e4'; ctx.lineWidth=1;
+  for(let g=0;g<=4;g++){
+    const y = pad.t + ch*(1-g/4);
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+cw,y); ctx.stroke();
+    ctx.fillStyle='#a8a29e'; ctx.font='11px Pretendard,Inter,sans-serif';
+    ctx.textAlign='right';
+    ctx.fillText(Math.round(maxV*g/4), pad.l-6, y+4);
+  }
+  for(let m=0;m<=months;m+=2){
+    const x = pad.l + cw*m/months;
+    ctx.fillStyle='#a8a29e'; ctx.textAlign='center';
+    ctx.fillText(m+'월', x, 220-pad.b+16);
+  }
+
+  function drawLine(data, color, dash=[]) {
+    ctx.beginPath(); ctx.strokeStyle=color; ctx.lineWidth=2.5;
+    ctx.setLineDash(dash);
+    data.forEach((v,i)=>{
+      const x = pad.l + cw*i/months;
+      const y = pad.t + ch*(1-v/maxV);
+      i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    });
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+  drawLine(dataA,'#7c3aed');
+  drawLine(dataB,'#10b981',[5,4]);
+
+  ctx.fillStyle='#7c3aed'; ctx.fillRect(pad.l+4,pad.t+4,12,3);
+  ctx.fillStyle='#1c1917'; ctx.font='11px Pretendard,Inter,sans-serif'; ctx.textAlign='left';
+  ctx.fillText('섀도우 AI 아티팩트 (α)', pad.l+20, pad.t+10);
+  ctx.strokeStyle='#10b981'; ctx.setLineDash([5,4]); ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(pad.l+150,pad.t+7); ctx.lineTo(pad.l+162,pad.t+7); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='#1c1917'; ctx.fillText('제거 기준선 (β)', pad.l+166, pad.t+10);
+}
+
+// ── Detection Layers ──
+const LAYERS = [
+  { id:'dns',  name:'DNS 캐시 분석',       cov:55, desc:'LLM 프로바이더 도메인 조회 기록 추적. 1–5분 유효. CDN 뒤 서비스는 한계.' },
+  { id:'proc', name:'프로세스 트리 분석',   cov:40, desc:'에이전트 프로세스와 부모-자식 관계 분석. 행동적 쌍둥이 문제 존재.' },
+  { id:'net',  name:'네트워크 연결 상관',   cov:65, desc:'원격 서비스 신원과 연결을 연계. Agent Detector의 핵심 방법.' },
+  { id:'cfg',  name:'설치/설정 파일 검사',  cov:70, desc:'MCP 서버, .env, config 파일에서 LLM 엔드포인트 키 탐지. 184개 엔트리.' },
+  { id:'hist', name:'실행 이력 포렌식',     cov:60, desc:'레지스트리, Prefetch, 이벤트 로그로 과거 실행 흔적 복원.' },
+  { id:'sig',  name:'알려진 도구 시그니처', cov:75, desc:'39개 에이전트 도구 카탈로그 기반 패턴 매칭. 신규 도구는 미적용.' },
+];
+
+function initLayers() {
+  const cont = document.getElementById('layer-controls');
+  cont.innerHTML = '';
+  LAYERS.forEach(l => {
+    const row = document.createElement('div');
+    row.className = 'flex items-center gap-3';
+    row.innerHTML = `
+      <input type="checkbox" id="chk-${l.id}" class="w-4 h-4 cursor-pointer" style="accent-color:#7c3aed;" onchange="calcCoverage()">
+      <div class="flex-1">
+        <div class="flex items-center justify-between">
+          <label for="chk-${l.id}" class="text-sm font-semibold cursor-pointer sans">${l.name}</label>
+          <span class="text-xs text-stone-400 sans">+${l.cov}%</span>
+        </div>
+        <p class="text-xs text-stone-500 mt-0.5">${l.desc}</p>
+      </div>`;
+    cont.appendChild(row);
+  });
+}
+
+function calcCoverage() {
+  let miss = 1.0;
+  LAYERS.forEach(l => {
+    if(document.getElementById('chk-'+l.id)?.checked) miss *= (1 - l.cov/100);
+  });
+  const cov = Math.round((1-miss)*100);
+  document.getElementById('total-coverage').textContent = cov+'%';
+  document.getElementById('total-bar').style.width = cov+'%';
+  const msgs = [
+    [0,  '탐지 레이어를 활성화하세요.'],
+    [30, '⚠️ 주요 에이전트만 탐지 가능. 더 많은 레이어 필요.'],
+    [60, '🔍 중간 수준. Agent Detector 수준 접근 중.'],
+    [80, '✅ 높은 커버리지 — 대부분의 에이전트 탐지 가능.'],
+    [95, '🛡️ 최대 커버리지 — 복합 레이어 완전 활성화.'],
+  ];
+  let msg = msgs[0][1];
+  for(const [t,m] of msgs) if(cov>=t) msg=m;
+  document.getElementById('coverage-msg').textContent = msg;
+}
+
+// ── Agent Taxonomy ──
+const AGENTS = [
+  { name:'자율형\n오케스트레이터', diff:'매우 높음', color:'#fef2f2', border:'#fecaca', desc:'여러 하위 에이전트를 조율하는 메인 에이전트. 탐지 가장 어려움 — 다양한 경로로 LLM 호출.' },
+  { name:'코드 실행\n에이전트',    diff:'높음',     color:'#fff7ed', border:'#fed7aa', desc:'코드 작성·실행을 반복하는 에이전트. 프로세스 생성 패턴이 단서지만 행동적 쌍둥이 많음.' },
+  { name:'MCP 서버',              diff:'높음',     color:'#fff7ed', border:'#fed7aa', desc:'Model Context Protocol 서버. 설정 파일에 흔적 남김 — 설치/설정 레이어가 가장 효과적.' },
+  { name:'브라우저\n자동화',       diff:'중간',     color:'#fffbeb', border:'#fde68a', desc:'웹 브라우저를 제어하는 에이전트. 브라우저 확장 또는 CDP 연결로 탐지 가능.' },
+  { name:'파일 시스템\n에이전트',  diff:'중간',     color:'#fffbeb', border:'#fde68a', desc:'파일 읽기/쓰기·검색하는 에이전트. 파일 접근 로그와 LLM 연결 상관 분석 필요.' },
+  { name:'이메일/캘린더\n에이전트', diff:'중간',    color:'#fffbeb', border:'#fde68a', desc:'이메일·일정을 처리하는 에이전트. OAuth 토큰과 LLM 엔드포인트 연결이 단서.' },
+  { name:'RAG 파이프라인',         diff:'낮음',    color:'#f0fdf4', border:'#bbf7d0', desc:'문서 검색+생성 파이프라인. 벡터 DB 연결 패턴과 LLM 호출 조합으로 탐지 가능.' },
+  { name:'AI 보조\n IDE플러그인',  diff:'낮음',    color:'#f0fdf4', border:'#bbf7d0', desc:'Copilot류 IDE 플러그인. 알려진 도구 시그니처로 쉽게 식별 — 카탈로그에 등재.' },
+  { name:'인라인\n프롬프트 호출',  diff:'매우 낮음', color:'#eff6ff', border:'#bfdbfe', desc:'스크립트 내 단순 API 호출. DNS+설정 분석으로 대부분 탐지 가능. 가장 흔한 유형.' },
+];
+
+function initAgents() {
+  const grid = document.getElementById('agent-grid');
+  AGENTS.forEach((a,i) => {
+    const btn = document.createElement('button');
+    btn.className = 'p-3 rounded-lg text-left text-xs font-semibold transition-all';
+    btn.style.cssText = `background:${a.color};border:1px solid ${a.border};`;
+    btn.innerHTML = `<div style="white-space:pre-line;line-height:1.3;">${a.name}</div><div class="mt-1 text-stone-400 font-normal">탐지난이도: ${a.diff}</div>`;
+    btn.setAttribute('aria-label', a.name.replace('\n',' ') + ' 에이전트');
+    btn.onclick = () => {
+      document.querySelectorAll('#agent-grid button').forEach(b=>b.style.outline='none');
+      btn.style.outline = '2px solid #7c3aed';
+      document.getElementById('agent-detail').innerHTML = `
+        <div class="flex items-start gap-3">
+          <div class="text-xs font-bold px-2 py-1 rounded sans" style="background:${a.color};border:1px solid ${a.border};white-space:nowrap;">탐지 난이도: ${a.diff}</div>
+          <p class="text-sm text-stone-700 leading-relaxed">${a.desc}</p>
+        </div>`;
+    };
+    grid.appendChild(btn);
+  });
+}
+
+// ── Init ──
+window.addEventListener('DOMContentLoaded', () => {
+  updateGrowth();
+  initLayers();
+  initAgents();
+});
+window.addEventListener('resize', () => { if(!document.getElementById('pane-growth').classList.contains('hidden')) updateGrowth(); });
+</script>
+</body>
+</html>
