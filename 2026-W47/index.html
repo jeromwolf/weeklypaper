@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-Agent Screening: 합의도와 수용도의 한계</title>
+  <meta property="og:title" content="Multi-Agent Screening: What Agreement and Acceptance Cannot Tell You">
+  <meta property="og:description" content="AI 에이전트 스크리닝에서 합의도·수용도만으로는 재현율을 알 수 없다. 거부 샘플링만이 답이다.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Noto+Serif+KR:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Source Serif 4', 'Noto Serif KR', Charter, Georgia, serif; background: #fafaf9; color: #292524; }
+    h1,h2,h3,h4,h5,h6,button,label,nav,.sans,.tag { font-family: 'Pretendard', 'Inter', system-ui, -apple-system, sans-serif; }
+    .fade-in { animation: fadeIn 0.6s ease both; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    input[type=range] { accent-color: #7c3aed; }
+    .metric-card { background:#fff; border:1px solid #e7e5e4; border-radius:12px; }
+    .tag { font-size:0.72rem; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<!-- Hero -->
+<section class="max-w-2xl mx-auto px-6 pt-16 pb-10 fade-in">
+  <div class="flex gap-2 mb-5 flex-wrap">
+    <span class="tag bg-violet-50 text-violet-700 px-3 py-1 rounded-full">arXiv 2611.12705</span>
+    <span class="tag bg-stone-100 text-stone-500 px-3 py-1 rounded-full">Multi-Agent Systems</span>
+    <span class="tag bg-pink-50 text-pink-600 px-3 py-1 rounded-full">주간 최고점 22/30</span>
+  </div>
+  <h1 class="text-3xl sm:text-4xl font-bold leading-tight text-stone-900 mb-3">Multi-Agent Screening:<br><span style="color:#7c3aed">합의도와 수용도</span>가 말할 수 없는 것</h1>
+  <p class="text-stone-500 sans text-sm mb-4">Benjamin Chang · Dell Zhang &nbsp;|&nbsp; <a href="https://arxiv.org/abs/2611.12705v1" target="_blank" class="text-violet-600 hover:underline">arxiv.org/abs/2611.12705</a></p>
+  <p class="text-lg text-stone-700 leading-relaxed">AI 에이전트들이 항목을 스크리닝할 때, 에이전트 간 <strong>합의도</strong>와 인간 검수자의 <strong>수용도</strong>만으로는 실제 재현율(Recall)을 절대 알 수 없다. 거부된 항목의 무작위 샘플링만이 유일한 해답이다.</p>
+</section>
+
+<!-- Key Insight -->
+<section class="max-w-2xl mx-auto px-6 pb-10 fade-in">
+  <div class="metric-card p-6 border-l-4 border-violet-500">
+    <h2 class="text-base font-bold text-stone-800 mb-4">핵심 인사이트 — 세 가지 증거의 한계</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="bg-amber-50 rounded-lg p-4">
+        <div class="sans text-xs font-bold text-amber-700 mb-1">① 에이전트 합의도</div>
+        <p class="text-sm text-stone-700">에이전트들이 <em>동의</em>한다는 것만 보여줄 뿐, <strong>옳다는 것을 보여주지 않는다.</strong> 에이전트 수와 무관.</p>
+      </div>
+      <div class="bg-blue-50 rounded-lg p-4">
+        <div class="sans text-xs font-bold text-blue-700 mb-1">② 인간 수용도</div>
+        <p class="text-sm text-stone-700">정밀도(Precision)를 보여주지만 재현율의 <strong>하한만</strong> 제공. 얼마나 놓쳤는지는 알 수 없다.</p>
+      </div>
+      <div class="bg-emerald-50 rounded-lg p-4">
+        <div class="sans text-xs font-bold text-emerald-700 mb-1">③ 거부 샘플링 ✓</div>
+        <p class="text-sm text-stone-700">에이전트가 <em>거부한</em> 항목의 무작위 표본만이 재현율을 <strong>정확히</strong> 추정할 수 있다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Interactive Demo -->
+<section class="max-w-2xl mx-auto px-6 pb-10 fade-in">
+  <h2 class="text-xl font-bold text-stone-900 mb-1">인터랙티브 시뮬레이터</h2>
+  <p class="text-stone-500 sans text-sm mb-6">슬라이더를 조정해 각 증거 유형이 재현율에 대해 무엇을 알려주는지 확인하세요.</p>
+
+  <div class="metric-card p-6 mb-5">
+    <h3 class="sans text-sm font-bold text-stone-700 mb-4">시나리오 설정</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      <div>
+        <label class="sans text-xs font-semibold text-stone-600 block mb-1">전체 항목 수 <span id="lbl-total" class="text-violet-600">1000</span></label>
+        <input type="range" id="sl-total" min="200" max="5000" step="100" value="1000" class="w-full">
+      </div>
+      <div>
+        <label class="sans text-xs font-semibold text-stone-600 block mb-1">실제 관련 항목 비율 <span id="lbl-rel" class="text-violet-600">20%</span></label>
+        <input type="range" id="sl-rel" min="5" max="50" step="1" value="20" class="w-full">
+      </div>
+      <div>
+        <label class="sans text-xs font-semibold text-stone-600 block mb-1">에이전트 수 <span id="lbl-agents" class="text-violet-600">3</span></label>
+        <input type="range" id="sl-agents" min="1" max="8" step="1" value="3" class="w-full">
+      </div>
+      <div>
+        <label class="sans text-xs font-semibold text-stone-600 block mb-1">에이전트 실제 재현율 <span id="lbl-recall" class="text-violet-600">75%</span></label>
+        <input type="range" id="sl-recall" min="40" max="99" step="1" value="75" class="w-full">
+      </div>
+    </div>
+  </div>
+
+  <!-- Metrics Output -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+    <div class="metric-card p-4 text-center">
+      <div class="sans text-xs text-stone-400 mb-1">전체 항목</div>
+      <div id="out-total" class="text-2xl font-bold text-stone-800">1,000</div>
+    </div>
+    <div class="metric-card p-4 text-center">
+      <div class="sans text-xs text-stone-400 mb-1">실제 관련 항목</div>
+      <div id="out-rel" class="text-2xl font-bold text-stone-800">200</div>
+    </div>
+    <div class="metric-card p-4 text-center">
+      <div class="sans text-xs text-stone-400 mb-1">패스된 항목</div>
+      <div id="out-pass" class="text-2xl font-bold text-violet-600">—</div>
+    </div>
+    <div class="metric-card p-4 text-center">
+      <div class="sans text-xs text-stone-400 mb-1">거부된 항목</div>
+      <div id="out-rej" class="text-2xl font-bold text-stone-800">—</div>
+    </div>
+  </div>
+
+  <!-- What each evidence tells you -->
+  <div class="metric-card p-5 mb-5">
+    <h3 class="sans text-sm font-bold text-stone-700 mb-4">각 증거가 말하는 것 vs. 실제</h3>
+    <div class="space-y-4">
+      <!-- Agreement -->
+      <div>
+        <div class="flex justify-between items-center mb-1">
+          <span class="sans text-xs font-semibold text-amber-700">① 합의도 (Agreement Rate)</span>
+          <span id="out-agree" class="sans text-xs font-bold text-stone-700">—</span>
+        </div>
+        <div class="w-full bg-stone-100 rounded-full h-2 mb-1"><div id="bar-agree" class="bg-amber-400 h-2 rounded-full" style="width:0%"></div></div>
+        <p class="sans text-xs text-stone-400">에이전트들이 얼마나 동의하는지를 보여주지만, 재현율에 대해선 아무것도 보장하지 않습니다.</p>
+      </div>
+      <!-- Precision from acceptance -->
+      <div>
+        <div class="flex justify-between items-center mb-1">
+          <span class="sans text-xs font-semibold text-blue-700">② 인간 수용 정밀도 (Precision)</span>
+          <span id="out-prec" class="sans text-xs font-bold text-stone-700">—</span>
+        </div>
+        <div class="w-full bg-stone-100 rounded-full h-2 mb-1"><div id="bar-prec" class="bg-blue-400 h-2 rounded-full" style="width:0%"></div></div>
+        <p class="sans text-xs text-stone-400">패스된 항목 중 실제 관련된 비율. 재현율의 <em>하한</em>만 제공합니다.</p>
+      </div>
+      <!-- True recall -->
+      <div>
+        <div class="flex justify-between items-center mb-1">
+          <span class="sans text-xs font-semibold text-stone-600">실제 재현율 (True Recall)</span>
+          <span id="out-truerecall" class="sans text-xs font-bold text-violet-700">—</span>
+        </div>
+        <div class="w-full bg-stone-100 rounded-full h-2 mb-1"><div id="bar-recall" class="bg-violet-500 h-2 rounded-full" style="width:0%"></div></div>
+        <p class="sans text-xs text-stone-400">합의도·수용도만으로는 이 값을 알 수 없습니다. 오직 거부 샘플링만이 추정 가능합니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rejection Sampling Estimator -->
+  <div class="metric-card p-5 bg-emerald-50 border-emerald-200">
+    <h3 class="sans text-sm font-bold text-emerald-800 mb-3">③ 거부 샘플링 — 필요 표본 크기 계산기</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="sans text-xs font-semibold text-stone-600 block mb-1">목표 오차 범위 ε <span id="lbl-eps" class="text-emerald-700">5%</span></label>
+        <input type="range" id="sl-eps" min="1" max="15" step="1" value="5" class="w-full">
+      </div>
+      <div>
+        <label class="sans text-xs font-semibold text-stone-600 block mb-1">신뢰 수준 <span id="lbl-conf" class="text-emerald-700">95%</span></label>
+        <select id="sl-conf" class="sans text-sm border border-stone-200 rounded px-2 py-1 w-full bg-white">
+          <option value="1.645">90%</option>
+          <option value="1.96" selected>95%</option>
+          <option value="2.576">99%</option>
+        </select>
+      </div>
+    </div>
+    <div class="bg-white rounded-lg p-4 border border-emerald-200">
+      <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+        <div>
+          <div class="sans text-xs text-stone-500 mb-1">거부 항목 중 필요 표본 수</div>
+          <div id="out-sample" class="text-3xl font-bold text-emerald-700">—</div>
+          <div id="out-sample-pct" class="sans text-xs text-stone-400 mt-1">전체 거부 항목의 —%</div>
+        </div>
+        <div class="text-sm text-stone-600 max-w-xs">
+          <strong>핵심:</strong> 이 표본 크기는 에이전트 수(<span id="out-agents-ref" class="text-violet-600">3</span>개)와 무관하게 결정됩니다. 에이전트를 늘려도 필요 샘플 수는 변하지 않습니다.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Visual Pipeline -->
+<section class="max-w-2xl mx-auto px-6 pb-10 fade-in">
+  <h2 class="text-xl font-bold text-stone-900 mb-5">스크리닝 파이프라인 시각화</h2>
+  <div class="metric-card p-5">
+    <svg id="pipeline-svg" viewBox="0 0 560 160" class="w-full" aria-label="스크리닝 파이프라인 다이어그램"></svg>
+  </div>
+</section>
+
+<!-- Business Analysis -->
+<section class="max-w-2xl mx-auto px-6 pb-10 fade-in">
+  <h2 class="text-xl font-bold text-stone-900 mb-5">비즈니스 분석</h2>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div class="metric-card p-5">
+      <div class="tag text-violet-600 mb-2">Wedge Pitch</div>
+      <p class="text-sm text-stone-700 leading-relaxed">법률 e-discovery·콘텐츠 모더레이션·AI 논문 심사 운영팀의 '다중 AI 에이전트가 놓친 항목을 알 수 없다'는 블랙박스 페인을 <strong>거부 샘플링 기반 재현율 모니터링 SaaS</strong>로 해결한다.</p>
+    </div>
+    <div class="metric-card p-5">
+      <div class="tag text-blue-600 mb-2">Target Customer</div>
+      <p class="text-sm text-stone-700 leading-relaxed">연간 수십만 건 문서를 AI 에이전트로 1차 필터링하는 <strong>AmLaw 100 로펌 e-discovery 팀장</strong> 또는 대형 플랫폼의 Trust &amp; Safety 엔지니어링 리드.</p>
+    </div>
+    <div class="metric-card p-5">
+      <div class="tag text-amber-600 mb-2">경쟁사</div>
+      <ul class="text-sm text-stone-700 space-y-1">
+        <li>• <strong>Relativity</strong> — e-discovery QC</li>
+        <li>• <strong>Everlaw</strong> — 법률 문서 관리</li>
+        <li>• <strong>Scale AI</strong> — 데이터 품질 검증</li>
+      </ul>
+    </div>
+    <div class="metric-card p-5">
+      <div class="tag text-emerald-600 mb-2">유니콘 시나리오</div>
+      <p class="text-sm text-stone-700 leading-relaxed">e-discovery($4B) + 콘텐츠 모더레이션 QA($3B) + EU AI Act 감사 수요 결합 → 5년 내 ARR $200M → <strong>$1B+ 밸류에이션</strong>. TAM $12B.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="max-w-2xl mx-auto px-6 py-8 border-t border-stone-200 text-center">
+  <p class="sans text-xs text-stone-400 mb-2">Built with <a href="https://flux.ai.kr" target="_blank" class="text-violet-600 hover:underline font-semibold">Flux Agent</a> · <a href="https://flux.ai.kr" target="_blank" class="text-violet-600 hover:underline">flux.ai.kr</a></p>
+  <p class="sans text-xs text-stone-400">논문 원문: <a href="https://arxiv.org/abs/2611.12705v1" target="_blank" class="text-violet-600 hover:underline">arxiv.org/abs/2611.12705</a></p>
+</footer>
+
+<script defer>
+(function() {
+  const $id = id => document.getElementById(id);
+
+  function fmt(n) { return Math.round(n).toLocaleString('ko-KR'); }
+  function pct(v) { return (v*100).toFixed(1) + '%'; }
+
+  function drawPipeline(passCount, rejCount, trueRecall, totalRel) {
+    const svg = $id('pipeline-svg');
+    const missedCount = Math.round(totalRel * (1 - trueRecall));
+    svg.innerHTML = `
+      <defs>
+        <marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L6,3 z" fill="#a8a29e"/>
+        </marker>
+      </defs>
+      <!-- Items pool -->
+      <rect x="10" y="55" width="90" height="50" rx="8" fill="#f5f5f4" stroke="#d6d3d1" stroke-width="1.5"/>
+      <text x="55" y="77" text-anchor="middle" font-family="Pretendard,Inter,sans-serif" font-size="10" fill="#78716c">전체 항목</text>
+      <text x="55" y="93" text-anchor="middle" font-family="Pretendard,Inter,sans-serif" font-size="11" font-weight="700" fill="#292524">${fmt(passCount+rejCount)}</text>
+      <!-- Arrow to agents -->
+      <line x1="100" y1="80" x2="150" y2="80" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arr)"/>
+      <!-- Agents box -->
+      <rect x="150" y="45" width="110" height="70" rx="8" fill="#ede9fe" stroke="#c4b5fd" stroke-width="1.5"/>
+      <text x="205" y="65" text-anchor="middle" font-family="Pretendard,Inter,sans-serif" font-size="10" fill="#6d28d9">AI 에이전트들</text>
+      <text x="205" y="82" text-anchor="middle" font-family="Pretendard,Inter,sans-serif" font-size="9" fill="#7c3aed">스크리닝</text>
+      <text x="205" y="98" text-anchor="middle" font-family="Pretendard,Inter,sans-serif" font-size="9" fill="#6d28d9">합의도: 측정 가능</text>
+      <text x="205" y="111" text-anchor="middle" font-family="Pretendard,Inter,sans-serif" font-size="9" fill="#6d28d9">재현율: ❌ 불가</text>
+      <!-- Arrow pass -->
+      <line x1="260" y1="68" x2="310" y2="50" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arr)"/>
+      <!-- Arrow reject -->
+      <line x1="260" y1="93" x2="310" y2="118" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arr)"/>
+      <!-- Pass box -->
+      <rect x="310" y="25" width="100" height="45" rx="8" fill="#dbeafe" stroke="#93c5fd" stroke-width="1.5"/>
+      <text x="360" y="43" text-anchor="middle" font-family="Pretendard,Inter,sans-serif" font-size="10" fill="#1d4ed8">패스 → 인간검수</text>
+      <text x="360" y="58" text-anchor="middle" font-family="Pretendard,Inter,sans-serif" font-size="10" font-weight="700" fill="#1d4ed8">${fmt(passCount)}건</text>
+      <!-- Reject box -->
+      <rect x="310" y="100" width="100" height="45" rx="8" fill="#fef3c7" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="360" y="118" text-anchor="middle" font-family="Pretendard,Inter,sans-serif" font-size="10" fill="#92400e">거부됨</text>
+      <text x="360" y="133" text-anchor="middle" font-family="Pretendard,Inter,sans-serif" font-size="10" font-weight="700" fill="#92400e">${fmt(rejCount)}건 (놓침: ${fmt(missedCount)})</text>
+      <!-- Arrow sample -->
+      <line x1="410" y1="122" x2="455" y2="122" stroke="#a8a29e" stroke-width="1.5" marker-end="url(#arr)"/>
+      <!-- Sample box -->
+      <rect x="455" y="100" width="90" height="45" rx="8" fill="#d1fae5" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="500" y="118" text-anchor="middle" font-family="Pretendard,Inter,sans-serif" font-size="10" fill="#065f46">무작위 샘플</text>
+      <text x="500" y="133" text-anchor="middle" font-family="Pretendard,Inter,sans-serif" font-size="9" fill="#065f46">→ 재현율 추정 ✓</text>
+    `;
+  }
+
+  function update() {
+    const total = +$id('sl-total').value;
+    const relPct = +$id('sl-rel').value / 100;
+    const agents = +$id('sl-agents').value;
+    const recallPct = +$id('sl-recall').value / 100;
+    const eps = +$id('sl-eps').value / 100;
+    const z = +$id('sl-conf').value;
+
+    const totalRel = Math.round(total * relPct);
+    const totalIrrel = total - totalRel;
+    const fpRate = 0.05;
+    const passedRel = Math.round(totalRel * recallPct);
+    const passedIrrel = Math.round(totalIrrel * fpRate);
+    const passed = passedRel + passedIrrel;
+    const rejected = total - passed;
+    const precision = passed > 0 ? passedRel / passed : 0;
+    const agreeRate = 0.75 + (recallPct - 0.5) * 0.2 + (agents - 1) * 0.02;
+    const agreeRateCapped = Math.min(agreeRate, 0.98);
+
+    // Sample size (Wilson / simple proportion estimate)
+    const p_miss = rejected > 0 ? (totalRel - passedRel) / rejected : 0;
+    const p_est = Math.max(p_miss, 0.01);
+    const n_raw = (z * z * p_est * (1 - p_est)) / (eps * eps);
+    const n_final = Math.min(Math.ceil(n_raw), rejected);
+    const samplePct = rejected > 0 ? (n_final / rejected * 100).toFixed(1) : '0';
+
+    // Update labels
+    $id('lbl-total').textContent = fmt(total);
+    $id('lbl-rel').textContent = $id('sl-rel').value + '%';
+    $id('lbl-agents').textContent = agents;
+    $id('lbl-recall').textContent = $id('sl-recall').value + '%';
+    $id('lbl-eps').textContent = $id('sl-eps').value + '%';
+    $id('lbl-conf').textContent = z == 1.645 ? '90%' : z == 1.96 ? '95%' : '99%';
+
+    // Outputs
+    $id('out-total').textContent = fmt(total);
+    $id('out-rel').textContent = fmt(totalRel);
+    $id('out-pass').textContent = fmt(passed);
+    $id('out-rej').textContent = fmt(rejected);
+
+    $id('out-agree').textContent = pct(agreeRateCapped) + ' (합의)';
+    $id('bar-agree').style.width = (agreeRateCapped * 100) + '%';
+
+    $id('out-prec').textContent = pct(precision) + ' (정밀도)';
+    $id('bar-prec').style.width = (precision * 100) + '%';
+
+    $id('out-truerecall').textContent = pct(recallPct) + ' ← 합의도·수용도로는 알 수 없음';
+    $id('bar-recall').style.width = (recallPct * 100) + '%';
+
+    $id('out-sample').textContent = fmt(n_final) + '건';
+    $id('out-sample-pct').textContent = '전체 거부 항목의 ' + samplePct + '%';
+    $id('out-agents-ref').textContent = agents;
+
+    drawPipeline(passed, rejected, recallPct, totalRel);
+  }
+
+  ['sl-total','sl-rel','sl-agents','sl-recall','sl-eps','sl-conf'].forEach(id => {
+    $id(id).addEventListener('input', update);
+  });
+
+  update();
+})();
+</script>
+</body>
+</html>
